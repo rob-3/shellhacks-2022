@@ -46,7 +46,9 @@
     ws.addEventListener("message", (event) => {
       console.log(event.data);
       const { gameState, playerState } = JSON.parse(event.data);
-      board = gameState.board;
+      for (const { x, y, color } of gameState) {
+        board[x][y] = color;
+      }
 
       if (playerState === "dead") {
         isDead = true;
@@ -63,6 +65,7 @@
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
+      if (playerIsDead) return;
       switch (event.key) {
         case "ArrowUp":
         case "w":
