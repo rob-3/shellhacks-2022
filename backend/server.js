@@ -81,7 +81,7 @@ function removePlayer(player)
   for (let i = 0; i < player.snake.length; i++)
   {
     gameState.board[Math.floor( player.snake[i] / width)][player.snake[i] % width] = ''
-    updates.push(Math.floor(player.snake[i] / width), player.snake[i] % width, '')
+    updates.push(new Update(Math.floor(player.snake[i] / width), player.snake[i] % width, ''))
   }
 
   player.snake = []
