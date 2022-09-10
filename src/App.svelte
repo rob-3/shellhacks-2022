@@ -22,9 +22,9 @@
 
 	const renderBoard = (board: boolean[][]) => {
 		ctx.clearRect(0, 0, clientWidth , clientHeight);
-		for (let i = 0; i < widthInBlocks; i++) {
-			for (let j = 0; j < heightInBlocks; j++) {
-				if (board[i][j]) {
+		for (let i = 0; i < 100; i++) {
+			for (let j = 0; j < 100; j++) {
+				if (board[j][i]) {
 					drawAt(i, j);
 				}
 			}
@@ -40,16 +40,17 @@
 			console.log('socket open')
 		});
 		ws.addEventListener('message', (event) => {
-			board = JSON.parse(event.data);
+			console.log(event.data);
+			const { board: newBoardState, playerState } = JSON.parse(event.data);
+			board = newBoardState;
 		})
 		heightInBlocks = Math.floor((clientHeight - 6) / 25);
 		widthInBlocks = Math.floor((clientWidth - 6) / 25);
-		board = Array.from(Array(widthInBlocks), () => new Array(heightInBlocks));
+		board = Array.from(Array(100), () => new Array(100));
 		const canvas = document.querySelector<HTMLCanvasElement>('#canvas');
 		canvas.setAttribute("height", clientHeight.toString());
 		canvas.setAttribute("width", clientWidth.toString());
 		ctx = canvas.getContext('2d');
-		board[0][0] = true;
 		document.addEventListener("keydown", (event) => {
 			console.log(event.key);
 			switch (event.key) {
@@ -72,13 +73,6 @@
 			}
 		});
 	});
-	let x = 0;
-	setInterval(() => {
-		x++;
-		board = Array.from(Array(widthInBlocks), () => new Array(heightInBlocks));
-		board[x][0] = true;
-		console.log(board);
-		}, 1000);
 </script>
 
 <canvas id="canvas" height="506" width="506"></canvas>
