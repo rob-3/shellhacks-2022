@@ -125,6 +125,7 @@
   <Question
     on:correct={() => {
       ws.send("quiz_success");
+      isDead = false;
       isAnsweringQuestion = false;
     }}
   />
