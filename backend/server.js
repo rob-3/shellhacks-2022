@@ -38,14 +38,25 @@ function fillBoard()
     for (let i = 0; i < player.snake.length; i++)
     {
       gameState.board[Math.floor(player.snake[i] / width)][player.snake[i] % width] = player.color
-      
     }
   });
+}
+
+function removePlayer(player)
+{
+  for (let i = 0; i < player.snake.length; i++)
+  {
+    gameState.board[Math.floor( player.snake[i] / width)][player.snake[i] % width] = ''
+  }
+
+  player.snake = []
+  player.score = 0
 }
 
 function moveOutcome(player) {
     if (checkForHits(player)) {
       player.state = 'dead';
+      removePlayer(player)
     } else {
       moveSnake(player);
     }
@@ -124,6 +135,13 @@ socket.on("connection", (ws) => {
     console.log("Message received: " + data.toString());
     
   })
+  
+  ws.on("close", () => {
+    removePlayer(players[id])
+    players.splice(id, 1)
+    console.log("Player " + id + " has disconnected")
+  })
+
 })
 
 socket.onerror = function(error) {
@@ -132,7 +150,9 @@ socket.onerror = function(error) {
 
 let interval = setInterval(() => {
   players.forEach((player) => {
-    moveOutcome(player);
-    player.client.send(JSON.stringify({gameState: gameState, playerState: player.state}));
+    if (player.state === 'alive') {
+      moveOutcome(player);
+      player.client.send(JSON.stringify({gameState: gameState, playerState: player.state}));
+    }
   });
 }, 200);
