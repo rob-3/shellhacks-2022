@@ -14,7 +14,7 @@ let interval = setInterval(() => {
     moveOutcome();
     client.send(JSON.stringify(gameState.board[0]));
   });
-}, 1000);
+}, 200);
 
 class Player {
   constructor() {
@@ -47,7 +47,6 @@ fillBoard()
 
 function moveOutcome() {
   if (checkForHits()) {
-    alert("you hit something");
     gameState.playerState = 'dead';
   } else {
     moveSnake();
@@ -80,7 +79,6 @@ function checkForHits() {
 let socket = new WebSocket.Server({ port: 8081 });
 
 socket.on("connection", (ws) => {
-  alert('someone connected!');
 
   ws.on("message", (data) => {
     console.log("Message received: " + data.toString());
