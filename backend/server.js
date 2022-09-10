@@ -2,6 +2,11 @@ const alert = require('alert-node')
 var _ = require('lodash');
 const WebSocket = require('ws')
 
+require('dotenv').config()
+const accountSid = process.env.TWILIO_ACCOUNT_SID
+const authToken = process.env.TWILIO_AUTH_TOKEN
+const twilioClient = require('twilio')(accountSid, authToken)
+
 let width = 50
 let updates = []
 
@@ -20,6 +25,7 @@ class Player {
     this.color = color
     this.score = 0
     this.state = 'alive'
+    this.phoneNumber = ''
   }
 }
 
@@ -170,6 +176,17 @@ function generatePlayer(client, color, size)
   console.log(snake)
   console.log(dir)
   return new Player(client, color, snake, dir)
+}
+
+function sendLeaderboardText(player)
+{
+  client.messages
+    .create({
+      body: "Somebody knocked you off the leaderboard! Looks like it's time to put your financial literacy skills to the test again!",
+      from: "+19717913081",
+      to: player.phoneNumber
+    })
+    .then(message => console.log(message.sid))
 }
 
 let socket = new WebSocket.Server({ port: 8081 });
