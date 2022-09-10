@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy,onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import "./app.css";
   import Death from "./lib/Death.svelte";
   import Join from "./lib/Join.svelte";
@@ -20,7 +20,12 @@
 
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
-    ctx.fillRect(paddingPerBlock + x * pixelsPerBlock, paddingPerBlock + y * pixelsPerBlock, drawablePixelsPerBlock, drawablePixelsPerBlock);
+    ctx.fillRect(
+      paddingPerBlock + x * pixelsPerBlock,
+      paddingPerBlock + y * pixelsPerBlock,
+      drawablePixelsPerBlock,
+      drawablePixelsPerBlock
+    );
   };
 
   const renderBoard = (board: string[][]) => {
@@ -59,7 +64,9 @@
   };
 
   onMount(() => {
-    ({ clientHeight, clientWidth } = document.body);
+    ({ clientHeight, clientWidth } = document.documentElement);
+    clientHeight -= 40;
+    clientWidth -= 40;
     board = Array.from(Array(50), () => new Array(50));
     clientHeight = clientWidth = Math.min(clientWidth, clientHeight);
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
@@ -99,7 +106,7 @@
   });
 </script>
 
-<div class="grid place-items-center">
+<div class="m-4 grid place-items-center">
   <canvas class="border border-red-500" id="canvas" height="850" width="850" />
 </div>
 
@@ -107,7 +114,7 @@
 
 {#if isDead}
   <Death
-    on:showquestion={() => {
+    on:close={() => {
       isAnsweringQuestion = true;
       isDead = false;
     }}
@@ -115,7 +122,13 @@
 {/if}
 
 {#if isAnsweringQuestion}
-  <Question />
+  <Question
+    on:correct={() => {
+      ws.send("quiz_success");
+      isDead = false;
+      isAnsweringQuestion = false;
+    }}
+  />
 {/if}
 
 {#if isJoining}
