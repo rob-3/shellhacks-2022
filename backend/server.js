@@ -27,7 +27,7 @@ class Player {
     this.color = color
     this.score = 0
     this.state = 'alive'
-    this.phoneNumber = ''
+    this.phoneNumber = phoneNumber
     this.name = name
   }
 }
@@ -112,7 +112,8 @@ function moveOutcome(player) {
     if (checkForHits(player)) {
       player.state = 'dead';
       const entry = leaderboard.find(({ playerName }) => playerName === player.name);
-      if (entry && entry.isFinal) {
+      // Ask Rob about this code - Dylan
+      if (entry && !entry.isFinal) {
         entry.isFinal = true;
       }
       removePlayer(player)
@@ -174,7 +175,8 @@ function eatApple(player, tail) {
     gameState.board[newApple['x']][newApple['y']] = 'red'
     updates.push(new Update(newApple['x'], newApple['y'], 'red'))
     player.score++;
-    const index = leaderboard.indexOf(({ playerName }) => playerName === player.name);
+    let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
+    console.log("index is " + index)
     const entry = leaderboard[index];
     if (entry && !entry.isFinal) {
       entry.score = player.score;
@@ -195,6 +197,7 @@ function eatApple(player, tail) {
 
 function generatePlayer(client, color, size, name, phoneNumber)
 {
+  console.log(color, name, phoneNumber)
   let coords = findOpenPosition()
   let dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right'
   let snake = []
@@ -213,7 +216,7 @@ function generatePlayer(client, color, size, name, phoneNumber)
 
 function sendLeaderboardText(player)
 {
-  client.messages
+  twilioClient.messages
     .create({
       body: "Somebody knocked you off the leaderboard! Looks like it's time to put your financial literacy skills to the test again!",
       from: "+19717913081",
@@ -238,7 +241,8 @@ socket.on("connection", (ws) => {
     // Check with team on request structure
     else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
     {
-      players.push(generatePlayer(ws, data.color, 3, data.name, data.phoneNumber))
+      player = JSON.parse(data)
+      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber))
       fillBoard()
     }
     else
@@ -246,7 +250,7 @@ socket.on("connection", (ws) => {
       if (directions[data.toString()] != -directions[players[id].currDirection])
         players[id].currDirection = data.toString();
     }
-    console.log("Message received: " + data.toString());
+    console.log("Message received:" + data.toString());
     
   })
   
@@ -271,7 +275,7 @@ let interval = setInterval(() => {
 
   players.forEach((player) => {
     if (player) {
-    player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard }));
+    player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard: leaderboard }));
     }
   });
   updates = []
