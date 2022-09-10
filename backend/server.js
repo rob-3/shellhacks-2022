@@ -2,8 +2,15 @@ const alert = require('alert-node')
 var _ = require('lodash');
 const WebSocket = require('ws')
 
+require('dotenv').config()
+const accountSid = process.env.TWILIO_ACCOUNT_SID
+const authToken = process.env.TWILIO_AUTH_TOKEN
+const twilioClient = require('twilio')(accountSid, authToken)
+
 let width = 50
 let updates = []
+
+const leaderboard = [];
 
 const directions = {
   up: -width,
@@ -13,13 +20,15 @@ const directions = {
 }
 
 class Player {
-  constructor(client, color, snake, currDirection) {
+  constructor(client, color, snake, currDirection, name, phoneNumber) {
     this.client = client
     this.currDirection = currDirection
     this.snake = snake
     this.color = color
     this.score = 0
     this.state = 'alive'
+    this.phoneNumber = ''
+    this.name = name
   }
 }
 
@@ -40,9 +49,6 @@ class Update {
 const players = new Array();
 const gameState = new GameState();
 
-// For random spawn, this is pt 1 of 3.
-// We also need to generate two additional spots adjacent, which are also valid
-// Lastly, generate a direction which won't screw over the player (towards the center)
 function findOpenPosition(){
 	var openSpots = [];
 	for (var x = 0; x < gameState.board.length; x++) {
@@ -105,6 +111,10 @@ function removePlayer(player)
 function moveOutcome(player) {
     if (checkForHits(player)) {
       player.state = 'dead';
+      const entry = leaderboard.find(({ playerName }) => playerName === player.name);
+      if (entry && entry.isFinal) {
+        entry.isFinal = true;
+      }
       removePlayer(player)
     } else {
       moveSnake(player);
@@ -129,14 +139,28 @@ function checkForHits(player) {
     (player.snake[0] + width >= width * width && dir === width) ||
     (player.snake[0] % width === width - 1 && dir === 1) ||
     (player.snake[0] % width === 0 && dir === -1) ||
-    (player.snake[0] - width <= 0 && dir === -width) ||
-    ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] != 'red') && 
-    (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] != ''))
+    (player.snake[0] - width <= 0 && dir === -width)
   ) {
     return true;
-  } else {
-    return false;
   }
+
+  if ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] != 'red') && 
+    (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] != ''))
+    {
+      players.forEach(collision => {
+        for (let i = 0; i < player.snake.length; i++)
+        {
+          if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === collision.color
+          && (player.snake[0] + dir) === collision.snake[i])
+          {
+            collision.score += 5
+          }
+        }
+      });
+
+      return true;
+    }
+    return false;
 }
 
 function eatApple(player, tail) {
@@ -150,10 +174,26 @@ function eatApple(player, tail) {
     gameState.board[newApple['x']][newApple['y']] = 'red'
     updates.push(new Update(newApple['x'], newApple['y'], 'red'))
     player.score++;
+    const index = leaderboard.indexOf(({ playerName }) => playerName === player.name);
+    const entry = leaderboard[index];
+    if (entry && !entry.isFinal) {
+      entry.score = player.score;
+      while (index !== 0 && entry.score > leaderboard[index-1].score) {
+        let temp = leaderboard[index-1];
+        leaderboard[index-1] = entry;
+        leaderboard[index] = temp
+        if (index === 5) {
+          sendLeaderboardText(leaderboard[5]);
+        }
+        index--;
+      }
+    } else {
+      leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+    }
   }
 }
 
-function generatePlayer(client, color, size)
+function generatePlayer(client, color, size, name, phoneNumber)
 {
   let coords = findOpenPosition()
   let dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right'
@@ -167,9 +207,19 @@ function generatePlayer(client, color, size)
     for (let i = 0; i < size; i++)
       snake.push(coords['x'] * width + coords['y'] - i)
   }
-  console.log(snake)
-  console.log(dir)
-  return new Player(client, color, snake, dir)
+
+  return new Player(client, color, snake, dir, name, phoneNumber)
+}
+
+function sendLeaderboardText(player)
+{
+  client.messages
+    .create({
+      body: "Somebody knocked you off the leaderboard! Looks like it's time to put your financial literacy skills to the test again!",
+      from: "+19717913081",
+      to: player.phoneNumber
+    })
+    .then(message => console.log(message.sid))
 }
 
 let socket = new WebSocket.Server({ port: 8081 });
@@ -177,18 +227,18 @@ let socket = new WebSocket.Server({ port: 8081 });
 let i = 0;
 socket.on("connection", (ws) => {
   let id = i++;
-  // Create a new player object on connection
   ws.on("message", (data) => {
     let messageString = data.toString()
+    // Check with team on request structure
     if (messageString == 'quiz_success')
     {
       let existingPlayer = players[id]
       players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2))
     }
+    // Check with team on request structure
     else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
     {
-      
-      players.push(generatePlayer(ws, messageString, 3))
+      players.push(generatePlayer(ws, data.color, 3, data.name, data.phoneNumber))
       fillBoard()
     }
     else
@@ -221,7 +271,7 @@ let interval = setInterval(() => {
 
   players.forEach((player) => {
     if (player) {
-    player.client.send(JSON.stringify({gameState: updates, playerState: player.state}));
+    player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard }));
     }
   });
   updates = []

@@ -1,4 +1,5 @@
 <script>
+  export let scoreboard = [];
 </script>
 
 <div
@@ -14,18 +15,12 @@
       </tr>
     </thead>
     <tbody>
+      {#each scoreboard as { playerName, score }}
       <tr>
-        <td>Player 1</td>
-        <td class="text-right">523</td>
+        <td>{playerName}</td>
+        <td class="text-right">{score}</td>
       </tr>
-      <tr>
-        <td>Player 2</td>
-        <td class="text-right">123</td>
-      </tr>
-      <tr>
-        <td>Player 3</td>
-        <td class="text-right">44</td>
-      </tr>
+      {/each}
     </tbody>
   </table>
 </div>

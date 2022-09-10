@@ -17,6 +17,7 @@
   let pixelsPerBlock: number;
   let paddingPerBlock: number;
   let drawablePixelsPerBlock: number;
+  let scoreboard;
 
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
@@ -44,7 +45,7 @@
   const onLogin = (event) => {
     console.log(event);
     console.log("opening socket");
-    ws = new WebSocket("ws://localhost:8081");
+    ws = new WebSocket("ws://20.106.75.32:8081");
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(event.detail.playerColor);
@@ -52,8 +53,8 @@
     });
     ws.addEventListener("message", (event) => {
       console.log(event.data);
-      const { gameState, playerState } = JSON.parse(event.data);
-
+      const { gameState, playerState, leaderboard } = JSON.parse(event.data);
+      scoreboard = leaderboard;
       for (const { x, y, color } of gameState) {
         board[x][y] = color;
       }
@@ -111,7 +112,7 @@
   <canvas class="border border-red-500" id="canvas" height="850" width="850" />
 </div>
 
-<UI />
+<UI scoreboard={scoreboard} />
 
 {#if isDead}
   <Death
