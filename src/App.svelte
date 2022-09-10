@@ -43,7 +43,9 @@
 			console.log(event.data);
 			const { board: newBoardState, playerState } = JSON.parse(event.data);
 			board = newBoardState;
-		})
+		});
+		//console.log(`color is: ${playerColor}`);
+		ws.send('#B2554D');
 	}
 
 	onMount(() => {
