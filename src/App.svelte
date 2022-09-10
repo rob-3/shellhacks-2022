@@ -16,10 +16,10 @@
 		ctx.fillRect(6 + x*25, 6 + y*25, 19, 19);
 	}
 
-	let heightInBlocks: number;
-	let widthInBlocks: number;
-	let clientHeight: number;
-	let clientWidth: number;
+  let heightInBlocks: number;
+  let widthInBlocks: number;
+  let clientHeight: number;
+  let clientWidth: number;
 
 	const renderBoard = (board: string[][]) => {
 		ctx.clearRect(0, 0, clientWidth , clientHeight);
@@ -32,7 +32,7 @@
 		}
 	}
 
-	$: if (board) renderBoard(board);
+  $: if (board) renderBoard(board);
 
 	const onLogin = (event) => {
 		console.log(event);
@@ -88,7 +88,7 @@
 	})
 </script>
 
-<canvas id="canvas" height="506" width="506"></canvas>
+<canvas id="canvas" height="506" width="506" />
 
 <UI />
 <Modal />
