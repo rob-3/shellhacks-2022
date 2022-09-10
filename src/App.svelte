@@ -9,22 +9,24 @@
   let board: string[][];
   let ctx: CanvasRenderingContext2D;
   let ws: WebSocket;
-
-  const drawAt = (color: string, x: number, y: number): void => {
-    ctx.fillStyle = color;
-    ctx.fillRect(6 + x * 25, 6 + y * 25, 19, 19);
-  };
-
   let clientHeight: number;
   let clientWidth: number;
   let isDead = false;
-  let isJoining = false;
+  let isJoining = true;
   let isAnsweringQuestion = false;
+  let pixelsPerBlock: number;
+  let paddingPerBlock: number;
+  let drawablePixelsPerBlock: number;
+
+  const drawAt = (color: string, x: number, y: number): void => {
+    ctx.fillStyle = color;
+    ctx.fillRect(paddingPerBlock + x * pixelsPerBlock, paddingPerBlock + y * pixelsPerBlock, drawablePixelsPerBlock, drawablePixelsPerBlock);
+  };
 
   const renderBoard = (board: string[][]) => {
     ctx.clearRect(0, 0, clientWidth, clientHeight);
-    for (let i = 0; i < 100; i++) {
-      for (let j = 0; j < 100; j++) {
+    for (let i = 0; i < 50; i++) {
+      for (let j = 0; j < 50; j++) {
         if (board[j][i]) {
           drawAt(board[j][i], i, j);
         }
@@ -58,10 +60,14 @@
 
   onMount(() => {
     ({ clientHeight, clientWidth } = document.body);
-    board = Array.from(Array(100), () => new Array(100));
+    board = Array.from(Array(50), () => new Array(50));
+    clientHeight = clientWidth = Math.min(clientWidth, clientHeight);
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
     canvas.setAttribute("height", clientHeight.toString());
     canvas.setAttribute("width", clientWidth.toString());
+    pixelsPerBlock = Math.floor(clientHeight / 50);
+    paddingPerBlock = Math.floor(pixelsPerBlock / 4);
+    drawablePixelsPerBlock = pixelsPerBlock - paddingPerBlock;
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
@@ -93,7 +99,10 @@
   });
 </script>
 
-<canvas id="canvas" height="506" width="506" />
+<div class="grid place-items-center">
+  <canvas class="border border-red-500" id="canvas" height="850" width="850" />
+</div>
+
 <UI />
 
 {#if isDead}
