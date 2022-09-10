@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onDestroy, onMount } from "svelte";
   import "./app.css";
-  import Join from "./lib/JoinScreen.svelte";
+  import Death from "./lib/Death.svelte";
+  import Join from "./lib/Join.svelte";
+  import Question from "./lib/Question.svelte";
   import UI from "./lib/UI.svelte";
 
   let board: string[][];
@@ -13,12 +15,11 @@
     ctx.fillRect(6 + x * 25, 6 + y * 25, 19, 19);
   };
 
-  let heightInBlocks: number;
-  let widthInBlocks: number;
   let clientHeight: number;
   let clientWidth: number;
-  let playerIsDead = false;
-	let showLogin = true;
+  let isDead = false;
+  let isJoining = false;
+  let isAnsweringQuestion = false;
 
   const renderBoard = (board: string[][]) => {
     ctx.clearRect(0, 0, clientWidth, clientHeight);
@@ -40,7 +41,7 @@
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(event.detail.playerColor);
-      showLogin = false;
+      isJoining = false;
     });
     ws.addEventListener("message", (event) => {
       console.log(event.data);
@@ -50,15 +51,13 @@
       }
 
       if (playerState === "dead") {
-        playerIsDead = true;
+        isDead = true;
       }
     });
   };
 
   onMount(() => {
     ({ clientHeight, clientWidth } = document.body);
-    heightInBlocks = Math.floor((clientHeight - 6) / 25);
-    widthInBlocks = Math.floor((clientWidth - 6) / 25);
     board = Array.from(Array(100), () => new Array(100));
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
     canvas.setAttribute("height", clientHeight.toString());
@@ -66,7 +65,7 @@
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
-      if (playerIsDead) return;
+      if (isDead) return;
       switch (event.key) {
         case "ArrowUp":
         case "w":
@@ -95,9 +94,21 @@
 </script>
 
 <canvas id="canvas" height="506" width="506" />
-
 <UI />
 
-{#if showLogin}
+{#if isDead}
+  <Death
+    on:showquestion={() => {
+      isAnsweringQuestion = true;
+      isDead = false;
+    }}
+  />
+{/if}
+
+{#if isAnsweringQuestion}
+  <Question />
+{/if}
+
+{#if isJoining}
   <Join on:close={onLogin} />
 {/if}
