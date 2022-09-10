@@ -12,7 +12,7 @@ const directions = {
 let interval = setInterval(() => {
   socket.clients.forEach((client) => {
     moveOutcome();
-    client.send(JSON.stringify(gameState.board[0]));
+    client.send(JSON.stringify(gameState));
   });
 }, 200);
 
