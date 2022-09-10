@@ -1,8 +1,13 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
 
   import Modal from "./Modal.svelte";
 
+  onMount(() => {
+    setTimeout(() => {
+      dispatch("close");
+    }, 5000);
+  });
   let dispatch = createEventDispatcher();
 </script>
 
@@ -11,11 +16,8 @@
     <div class="mb-8 text-7xl">💀</div>
     <div class="mb-4 text-3xl">Oh no you died!</div>
     <div class="mb-6 max-w-sm">
-      Please answer the following financial literacy question
+      You're going to have to answer this financial literacy question to come
+      back to life!
     </div>
-    <button
-      class="rounded bg-gray-800 px-4 py-2"
-      on:click={() => dispatch("close")}>See Question</button
-    >
   </div>
 </Modal>
