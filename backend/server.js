@@ -156,16 +156,16 @@ function eatApple(player, tail) {
 function generatePlayer(client, color, size)
 {
   let coords = findOpenPosition()
-  let dir = coords['y'] > width / 2 ? 'left' : 'right'
+  let dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right'
   let snake = []
   if (dir == 'left')
   {
     for (let i = 0; i < size; i++)
-      snake.push(coords['x'] + coords['y'] + i)
+      snake.push(coords['x'] * width + coords['y'] + i)
   }
   else {
     for (let i = 0; i < size; i++)
-      snake.push(coords['x'] + coords['y'] - i)
+      snake.push(coords['x'] * width + coords['y'] - i)
   }
   console.log(snake)
   console.log(dir)
