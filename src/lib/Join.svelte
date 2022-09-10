@@ -1,18 +1,11 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { fade } from "svelte/transition";
 
   let playerColor = "#000000";
   let playerName = "";
 
   const dispatch = createEventDispatcher();
-
-  //Convert Hex to RGB
-  function hexToRgb(hex) {
-    let r = parseInt(hex.slice(1, 3), 16);
-    let g = parseInt(hex.slice(3, 5), 16);
-    let b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  }
 
   const handleJoin = () => {
     if (playerName.length < 1) {
@@ -25,7 +18,7 @@
   };
 </script>
 
-<div class="fixed inset-0 bg-gray-900 text-white">
+<div transition:fade class="fixed inset-0 bg-gray-900 text-white">
   <div class="flex h-full flex-col items-center justify-center">
     <div class="mb-6 text-center text-4xl">Snake Battle Royale</div>
     <form on:submit|preventDefault={handleJoin} class="mb-4 flex flex-col">

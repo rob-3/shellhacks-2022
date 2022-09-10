@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy,onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import "./app.css";
   import Death from "./lib/Death.svelte";
   import Join from "./lib/Join.svelte";
@@ -20,7 +20,12 @@
 
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
-    ctx.fillRect(paddingPerBlock + x * pixelsPerBlock, paddingPerBlock + y * pixelsPerBlock, drawablePixelsPerBlock, drawablePixelsPerBlock);
+    ctx.fillRect(
+      paddingPerBlock + x * pixelsPerBlock,
+      paddingPerBlock + y * pixelsPerBlock,
+      drawablePixelsPerBlock,
+      drawablePixelsPerBlock
+    );
   };
 
   const renderBoard = (board: string[][]) => {
@@ -107,7 +112,7 @@
 
 {#if isDead}
   <Death
-    on:showquestion={() => {
+    on:close={() => {
       isAnsweringQuestion = true;
       isDead = false;
     }}
@@ -115,7 +120,12 @@
 {/if}
 
 {#if isAnsweringQuestion}
-  <Question />
+  <Question
+    on:correct={() => {
+      ws.send("quiz_success");
+      isAnsweringQuestion = false;
+    }}
+  />
 {/if}
 
 {#if isJoining}

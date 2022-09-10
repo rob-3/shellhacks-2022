@@ -15,7 +15,7 @@
     </div>
     <button
       class="bg-gray-800 px-4 py-2 rounded"
-      on:click={() => dispatch("showquestion")}>See Question</button
+      on:click={() => dispatch("close")}>See Question</button
     >
   </div>
 </Modal>
