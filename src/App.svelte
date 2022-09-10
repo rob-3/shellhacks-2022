@@ -35,7 +35,7 @@
 
 	onMount(() => {
 		({ clientHeight, clientWidth } = document.body);
-		ws = new WebSocket('ws://www.website.com/path');
+		ws = new WebSocket('ws://localhost:8081');
 		ws.addEventListener('open', () => {
 			console.log('socket open')
 		});
