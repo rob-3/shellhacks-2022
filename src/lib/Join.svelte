@@ -6,10 +6,10 @@
   const dispatch = createEventDispatcher();
 </script>
 
-<div class="absolute inset-0 bg-gray-900 text-white">
+<div class="fixed inset-0 bg-gray-900 text-white">
   <div class="flex h-full flex-col items-center justify-center">
     <div class="mb-6 text-4xl">Snake Battle Royale</div>
-    <div class="flex flex-col">
+    <form on:submit|preventDefault class="flex flex-col">
       <input
         class="mb-3 rounded bg-gray-800 px-4 py-2"
         placeholder="Enter a name"
@@ -17,9 +17,9 @@
       />
       <button
         class=" rounded bg-green-500 px-4 py-2"
-        on:click={() => dispatch('close', { playerColor })}>Play</button
+        on:click={() => dispatch("close", { playerColor })}>Play</button
       >
-    </div>
+    </form>
     <div class="mt-2">
       <label class="block" for="color">Choose your color</label>
       <input
