@@ -45,7 +45,9 @@
     ws.addEventListener("message", (event) => {
       console.log(event.data);
       const { gameState, playerState } = JSON.parse(event.data);
-      board = gameState.board;
+      for (const { x, y, color } of gameState) {
+        board[x][y] = color;
+      }
 
       if (playerState === "dead") {
         playerIsDead = true;
