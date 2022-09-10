@@ -4,7 +4,7 @@
 	import Modal from "./lib/Modal.svelte";
 	import UI from "./lib/UI.svelte";
 
-	let isFirstTime = false;
+	let showLogin = true;
 	import { onDestroy, onMount } from "svelte";
 
 	let board: string[][];
@@ -34,12 +34,14 @@
 
 	$: if (board) renderBoard(board);
 
-	$: if (isFirstTime) {
+	const onLogin = (event) => {
+		console.log(event);
 		console.log('opening socket');
 		ws = new WebSocket('ws://localhost:8081');
 		ws.addEventListener('open', () => {
 			console.log('socket open')
-			ws.send('#B2554D');
+			ws.send(event.detail.playerColor);
+			showLogin = false;
 		});
 		ws.addEventListener('message', (event) => {
 			console.log(event.data);
@@ -91,4 +93,6 @@
 <UI />
 <Modal />
 
-<Join bind:isFirstTime />
+{#if showLogin}
+	<Join on:close={onLogin} />
+{/if}
