@@ -114,8 +114,8 @@ function moveOutcome(player) {
     if (checkForHits(player)) {
       player.state = 'dead';
       const entry = leaderboard.find(({ playerName }) => playerName === player.name);
-      if (entry?.isFinal) {
-        entry?.isFinal = true;
+      if (entry && entry.isFinal) {
+        entry.isFinal = true;
       }
       removePlayer(player)
     } else {
