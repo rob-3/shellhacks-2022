@@ -65,7 +65,7 @@
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
-      if (playerIsDead) return;
+      if (isDead) return;
       switch (event.key) {
         case "ArrowUp":
         case "w":
