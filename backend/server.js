@@ -12,7 +12,7 @@ const directions = {
 let interval = setInterval(() => {
   socket.clients.forEach((client) => {
     moveOutcome();
-    client.send(JSON.stringify(gameState));
+    client.send(JSON.stringify(gameState.board[0]));
   });
 }, 1000);
 
@@ -33,6 +33,17 @@ class GameState {
 const player = new Player();
 const gameState = new GameState();
 currentSnake = [2, 1, 0]
+
+function fillBoard()
+{
+  for (let i = 0; i < currentSnake.length; i++)
+  {
+    gameState.board[Math.floor(currentSnake[i] / width)][currentSnake[i] % width] = 1
+    
+  }
+}
+
+fillBoard()
 
 function moveOutcome() {
   if (checkForHits()) {
@@ -73,11 +84,10 @@ socket.on("connection", (ws) => {
 
   ws.on("message", (data) => {
     console.log("Message received: " + data.toString());
-    player.currDirection = data.toString();
+    if (directions[data.toString()] != -directions[player.currDirection])
+      player.currDirection = data.toString();
   })
 })
-
-
 
 socket.onerror = function(error) {
   alert(`[error] ${error.message}`);
