@@ -32,13 +32,36 @@ class GameState {
 const players = new Array();
 const gameState = new GameState();
 
+function findOpenPosition(){
+	var openSpots = [];
+	for (var x = 0; x < gameState.board.length; x++) {
+		for (var y = 0; y < gameState.board[x].length; y++) {
+			if(gameState.board[x][y] == '')
+				openSpots.push({x:x,y:y});
+		};
+	};
+
+	if(openSpots.length==0)
+		return null;
+    
+	return _.sample(openSpots);
+}
+
 function fillBoard()
 {
   players.forEach((player) => {
+    if (!player || player.state === 'dead') 
+      return
+      
     for (let i = 0; i < player.snake.length; i++)
     {
       gameState.board[Math.floor(player.snake[i] / width)][player.snake[i] % width] = player.color
     }
+
+    let newApple = findOpenPosition()
+    console.log(newApple)
+    gameState.board[newApple['x']][newApple['y']] = 'red'
+    console.log(gameState.board[newApple['x']][newApple['y']])
   });
 }
 
@@ -99,20 +122,7 @@ function eatApple(player, tail) {
   }
 }
 
-function findOpenPosition(){
-	var openSpots = [];
-	for (var x = 0; x < gameState.board.length; x++) {
-		for (var y = 0; y < gameState.board[x].length; y++) {
-			if(gameState.board[x][y] == '')
-				openSpots.push({x:x,y:y});
-		};
-	};
 
-	if(openSpots.length==0)
-		return null;
-    
-	return _.sample(openSpots);
-}
 
 let socket = new WebSocket.Server({ port: 8081 });
 
@@ -138,7 +148,7 @@ socket.on("connection", (ws) => {
   
   ws.on("close", () => {
     removePlayer(players[id])
-    players.splice(id, 1)
+    players[id] = null
     console.log("Player " + id + " has disconnected")
   })
 
@@ -150,7 +160,7 @@ socket.onerror = function(error) {
 
 let interval = setInterval(() => {
   players.forEach((player) => {
-    if (player.state === 'alive') {
+    if (player && player.state === 'alive') {
       moveOutcome(player);
       player.client.send(JSON.stringify({gameState: gameState, playerState: player.state}));
     }
