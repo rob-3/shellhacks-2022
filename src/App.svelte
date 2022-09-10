@@ -45,7 +45,7 @@
   const onLogin = (event) => {
     console.log(event);
     console.log("opening socket");
-    ws = new WebSocket("20.106.75.32/8081");
+    ws = new WebSocket("ws://localhost:8081");
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(JSON.stringify({color: event.detail.playerColor, name: event.detail.playerName, phoneNumber: "+1" + event.detail.phoneNumber}));

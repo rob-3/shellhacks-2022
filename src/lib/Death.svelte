@@ -6,7 +6,7 @@
   onMount(() => {
     setTimeout(() => {
       dispatch("close");
-    }, 5000);
+    }, 3000);
   });
   let dispatch = createEventDispatcher();
 </script>

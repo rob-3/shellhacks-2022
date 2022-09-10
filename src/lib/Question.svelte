@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from "svelte";
   import questions from "../questions.json";
   import Modal from "./Modal.svelte";
@@ -10,22 +10,29 @@
     return question;
   };
 
+  let answerIsChosen = false;
+
   let question = generateQuestion();
   let handleAnswer = (target, answerChoice, answer) => {
+    if (answerIsChosen) {
+      return;
+    }
     target.classList.remove("choice");
     if (answerChoice === answer) {
       target.classList.add("correct-choice");
       setTimeout(() => {
         dispatch("correct");
-      }, 5000);
-      return;
+      }, 3000);
+    } else {
+      target.classList.add("wrong-choice");
+      setTimeout(() => {
+        question = generateQuestion();
+        target.classList.remove("wrong-choice");
+        target.classList.add("choice");
+        answerIsChosen = false;
+      }, 3000);
     }
-    target.classList.add("wrong-choice");
-    setTimeout(() => {
-      question = generateQuestion();
-      target.classList.remove("wrong-choice");
-      target.classList.add("choice");
-    }, 5000);
+    answerIsChosen = true;
   };
 </script>
 
