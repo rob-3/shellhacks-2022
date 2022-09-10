@@ -91,7 +91,6 @@
 <canvas id="canvas" height="506" width="506" />
 
 <UI />
-<Modal />
 
 {#if showLogin}
 	<Join on:close={onLogin} />
