@@ -58,6 +58,20 @@ function findOpenPosition(){
 	return _.sample(openSpots);
 }
 
+function findApples()
+{
+  for (let i = 0; i < gameState.board.length; i++)
+  {
+    for (let j = 0; j < gameState.board[i].length; j++)
+    {
+      if (gameState.board[i][j] == 'red')
+      {
+        updates.push(new Update(i, j, 'red'))
+      }
+    }
+  }
+}
+
 function fillBoard()
 {
   players.forEach((player) => {
@@ -70,6 +84,7 @@ function fillBoard()
       updates.push(new Update(Math.floor(player.snake[i] / width), player.snake[i] % width, player.color))
     }
 
+    findApples()
     let newApple = findOpenPosition()
     gameState.board[newApple['x']][newApple['y']] = 'red'
     updates.push(new Update(newApple['x'], newApple['y'], 'red'))
@@ -85,7 +100,6 @@ function removePlayer(player)
   }
 
   player.snake = []
-  player.score = 0
 }
 
 function moveOutcome(player) {
@@ -139,17 +153,19 @@ function eatApple(player, tail) {
   }
 }
 
-function generatePlayer(client, color)
+function generatePlayer(client, color, size)
 {
   let coords = findOpenPosition()
   let dir = coords['y'] > width / 2 ? 'left' : 'right'
   let snake = []
   if (dir == 'left')
   {
-    snake = [coords['x'] + coords['y'], coords['x'] + coords['y'] + 1, coords['x'] + coords['y'] + 2]
+    for (let i = 0; i < size; i++)
+      snake.push(coords['x'] + coords['y'] + i)
   }
   else {
-    snake = [coords['x'] + coords['y'], coords['x'] + coords['y'] - 1, coords['x'] + coords['y'] - 2]
+    for (let i = 0; i < size; i++)
+      snake.push(coords['x'] + coords['y'] - i)
   }
   console.log(snake)
   console.log(dir)
@@ -164,10 +180,15 @@ socket.on("connection", (ws) => {
   // Create a new player object on connection
   ws.on("message", (data) => {
     let messageString = data.toString()
-    if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
+    if (messageString == 'quiz_success')
+    {
+      let existingPlayer = players[id]
+      players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2))
+    }
+    else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
     {
       
-      players.push(generatePlayer(ws, messageString))
+      players.push(generatePlayer(ws, messageString, 3))
       fillBoard()
     }
     else
