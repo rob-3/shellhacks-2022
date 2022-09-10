@@ -59,7 +59,9 @@
   };
 
   onMount(() => {
-    ({ clientHeight, clientWidth } = document.body);
+    ({ clientHeight, clientWidth } = document.documentElement);
+    clientHeight -= 40;
+    clientWidth -= 40;
     board = Array.from(Array(50), () => new Array(50));
     clientHeight = clientWidth = Math.min(clientWidth, clientHeight);
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
@@ -99,7 +101,7 @@
   });
 </script>
 
-<div class="grid place-items-center">
+<div class="m-4 grid place-items-center">
   <canvas class="border border-red-500" id="canvas" height="850" width="850" />
 </div>
 
