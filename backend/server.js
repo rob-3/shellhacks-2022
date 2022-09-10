@@ -2,8 +2,7 @@ const alert = require('alert-node')
 var _ = require('lodash');
 const WebSocket = require('ws')
 
-let width = 100
-let speed = 0.8
+let width = 50
 let updates = []
 
 const directions = {
@@ -14,10 +13,10 @@ const directions = {
 }
 
 class Player {
-  constructor(client, color) {
+  constructor(client, color, snake, currDirection) {
     this.client = client
-    this.currDirection = 'right'
-    this.snake = [2, 1, 0]
+    this.currDirection = currDirection
+    this.snake = snake
     this.color = color
     this.score = 0
     this.state = 'alive'
@@ -41,6 +40,9 @@ class Update {
 const players = new Array();
 const gameState = new GameState();
 
+// For random spawn, this is pt 1 of 3.
+// We also need to generate two additional spots adjacent, which are also valid
+// Lastly, generate a direction which won't screw over the player (towards the center)
 function findOpenPosition(){
 	var openSpots = [];
 	for (var x = 0; x < gameState.board.length; x++) {
@@ -69,10 +71,8 @@ function fillBoard()
     }
 
     let newApple = findOpenPosition()
-    console.log(newApple)
     gameState.board[newApple['x']][newApple['y']] = 'red'
     updates.push(new Update(newApple['x'], newApple['y'], 'red'))
-    console.log(gameState.board[newApple['x']][newApple['y']])
   });
 }
 
@@ -139,7 +139,22 @@ function eatApple(player, tail) {
   }
 }
 
-
+function generatePlayer(client, color)
+{
+  let coords = findOpenPosition()
+  let dir = coords['y'] > width / 2 ? 'left' : 'right'
+  let snake = []
+  if (dir == 'left')
+  {
+    snake = [coords['x'] + coords['y'], coords['x'] + coords['y'] + 1, coords['x'] + coords['y'] + 2]
+  }
+  else {
+    snake = [coords['x'] + coords['y'], coords['x'] + coords['y'] - 1, coords['x'] + coords['y'] - 2]
+  }
+  console.log(snake)
+  console.log(dir)
+  return new Player(client, color, snake, dir)
+}
 
 let socket = new WebSocket.Server({ port: 8081 });
 
@@ -151,7 +166,8 @@ socket.on("connection", (ws) => {
     let messageString = data.toString()
     if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
     {
-      players.push(new Player(ws, messageString))
+      
+      players.push(generatePlayer(ws, messageString))
       fillBoard()
     }
     else
