@@ -4,6 +4,7 @@
 
   let playerColor = "#000000";
   let playerName = "";
+  let phoneNumber = ""
 
   const dispatch = createEventDispatcher();
 
@@ -14,6 +15,7 @@
     dispatch("close", {
       playerName,
       playerColor,
+      phoneNumber,
     });
   };
 </script>
@@ -27,6 +29,12 @@
         placeholder="Enter a name"
         type="text"
         bind:value={playerName}
+      />
+      <input
+        class="mb-3 rounded border border-gray-800 bg-gray-800 px-4 py-2"
+        placeholder="phone number (optional)"
+        type="text"
+        bind:value={phoneNumber}
       />
       <button class=" rounded bg-green-500 px-4 py-2">Play</button>
     </form>
