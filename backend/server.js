@@ -10,6 +10,8 @@ const twilioClient = require('twilio')(accountSid, authToken)
 let width = 50
 let updates = []
 
+const leaderboard = [];
+
 const directions = {
   up: -width,
   right: 1,
@@ -111,6 +113,10 @@ function removePlayer(player)
 function moveOutcome(player) {
     if (checkForHits(player)) {
       player.state = 'dead';
+      const entry = leaderboard.find(({ playerName }) => playerName === player.name);
+      if (entry?.isFinal) {
+        entry?.isFinal = true;
+      }
       removePlayer(player)
     } else {
       moveSnake(player);
@@ -170,6 +176,22 @@ function eatApple(player, tail) {
     gameState.board[newApple['x']][newApple['y']] = 'red'
     updates.push(new Update(newApple['x'], newApple['y'], 'red'))
     player.score++;
+    const index = leaderboard.indexOf(({ playerName }) => playerName === player.name);
+    const entry = leaderboard[index];
+    if (entry && !entry.isFinal) {
+      entry.score = player.score;
+      while (index !== 0 && entry.score > leaderboard[index-1].score) {
+        let temp = leaderboard[index-1];
+        leaderboard[index-1] = entry;
+        leaderboard[index] = temp
+        if (index === 5) {
+          sendLeaderboardText(leaderboard[5]);
+        }
+        index--;
+      }
+    } else {
+      leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+    }
   }
 }
 
@@ -252,7 +274,7 @@ let interval = setInterval(() => {
 
   players.forEach((player) => {
     if (player) {
-    player.client.send(JSON.stringify({gameState: updates, playerState: player.state}));
+    player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard }));
     }
   });
   updates = []

@@ -2,8 +2,9 @@
   import Counter from "./Length.svelte";
 
   import ScoreBoard from "./Leaderboard.svelte";
+  export let scoreboard;
 </script>
 
-<ScoreBoard />
+<ScoreBoard scoreboard={scoreboard}/>
 <Counter />
 <slot />
