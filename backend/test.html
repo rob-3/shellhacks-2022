@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+
+<html>
+   <head>
+      
+      <script type = "text/javascript">
+        var ws;
+
+         function WebSocketTest() {
+            
+            if ("WebSocket" in window) {               
+               // Let us open a web socket
+               ws = new WebSocket("ws://localhost:8081");
+				
+               ws.onopen = function() {
+                  
+                  // Web Socket is connected, send data using send()
+                  ws.send("right");
+                  alert("Message is sent...");
+               };
+				
+               ws.onmessage = function (evt) { 
+                  var received_msg = evt.data;
+                  console.log(received_msg);
+               };
+				
+               ws.onclose = function() { 
+                  
+                  // websocket is closed.
+                  alert("Connection is closed..."); 
+               };
+            }
+         }
+
+         function SetDirection(direction) {
+            ws.send(direction);
+         }
+      </script>
+		
+   </head>
+   
+   <body>
+      <div id = "sse">
+         <a href = "javascript:WebSocketTest()">Setup Socket</a>
+         <a href = "javascript:SetDirection('up')">Up</a>
+         <a href = "javascript:SetDirection('right')">Right</a>
+         <a href = "javascript:SetDirection('down')">Down</a>
+         <a href = "javascript:SetDirection('left')">Left</a>
+      </div>
+      
+   </body>
+</html>
