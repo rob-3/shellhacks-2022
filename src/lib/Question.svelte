@@ -1,8 +1,23 @@
 <script>
+  import { createEventDispatcher } from "svelte";
   import questions from "../questions.json";
   import Modal from "./Modal.svelte";
 
-  let question = questions[Math.floor(Math.random() * questions.length)];
+  let dispatch = createEventDispatcher();
+
+  let generateQuestion = () => {
+    let question = questions[Math.floor(Math.random() * questions.length)];
+    return question;
+  };
+
+  let question = generateQuestion();
+  let checkAnswer = (answerChoice, answer) => {
+    if (answerChoice === answer) {
+      dispatch("correct");
+      return;
+    }
+    question = generateQuestion();
+  };
 </script>
 
 <Modal>
@@ -10,7 +25,12 @@
   <div class="mb-10 text-4xl">{question.question}</div>
   <ul class="max-w-400px flex flex-col gap-2">
     {#each question.answerChoices as answerChoice}
-      <li class="choice">{answerChoice}</li>
+      <li
+        class="choice"
+        on:click={() => checkAnswer(answerChoice, question.answer)}
+      >
+        {answerChoice}
+      </li>
     {/each}
   </ul>
 </Modal>
