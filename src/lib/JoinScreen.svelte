@@ -1,10 +1,10 @@
 <script>
-  export let isInGame = false;
+  export let isFirstTime = false;
 
   let playerColor = null;
 </script>
 
-{#if !isInGame}
+{#if !isFirstTime}
   <div class="absolute inset-0 bg-gray-900 text-white">
     <div class="flex h-full flex-col items-center justify-center">
       <div class="mb-6 text-4xl">Snake Battle Royale</div>
@@ -16,7 +16,7 @@
         />
         <button
           class=" rounded bg-green-500 px-4 py-2"
-          on:click={() => (isInGame = true)}>Play</button
+          on:click={() => (isFirstTime = true)}>Play</button
         >
       </div>
       <div class="mt-2">

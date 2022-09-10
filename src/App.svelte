@@ -4,8 +4,8 @@
 	import Modal from "./lib/Modal.svelte";
 	import UI from "./lib/UI.svelte";
 
-	let isInGame = false;
-	import { onMount } from "svelte";
+	let isFirstTime = false;
+	import { onDestroy, onMount } from "svelte";
 
 	let board: boolean[][];
 	let ctx: CanvasRenderingContext2D;
@@ -33,8 +33,8 @@
 
 	$: if (board) renderBoard(board);
 
-	onMount(() => {
-		({ clientHeight, clientWidth } = document.body);
+	$: if (isFirstTime) {
+		console.log('opening socket');
 		ws = new WebSocket('ws://localhost:8081');
 		ws.addEventListener('open', () => {
 			console.log('socket open')
@@ -44,6 +44,10 @@
 			const { board: newBoardState, playerState } = JSON.parse(event.data);
 			board = newBoardState;
 		})
+	}
+
+	onMount(() => {
+		({ clientHeight, clientWidth } = document.body);
 		heightInBlocks = Math.floor((clientHeight - 6) / 25);
 		widthInBlocks = Math.floor((clientWidth - 6) / 25);
 		board = Array.from(Array(100), () => new Array(100));
@@ -64,7 +68,7 @@
 				break;
 				case "ArrowRight":
 				case "d":
-				ws.send("right");
+					ws.send("right");
 				break;
 				case "ArrowLeft":
 				case "a":
@@ -73,6 +77,11 @@
 			}
 		});
 	});
+
+	onDestroy(() => {
+		console.log('goodbye!');
+		ws.close();
+	})
 </script>
 
 <canvas id="canvas" height="506" width="506"></canvas>
@@ -80,4 +89,4 @@
 <UI />
 <Modal />
 
-<Join bind:isInGame />
+<Join bind:isFirstTime />
