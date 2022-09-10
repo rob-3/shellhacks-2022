@@ -1,15 +1,21 @@
-<script>
+<script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
 
   let playerColor = "#000000";
   let playerName = "";
   let phoneNumber = ""
+  let isTouched = false;
 
   const dispatch = createEventDispatcher();
 
+  let input: HTMLInputElement = null;
+
   const handleJoin = () => {
     if (playerName.length < 1) {
+      input.classList.remove("border-gray-800");
+      input.classList.add("ring-red-500");
+      input.classList.add("border-red-500");
       return;
     }
     dispatch("close", {
@@ -25,7 +31,12 @@
     <div class="mb-6 text-center text-4xl">Snake Battle Royale</div>
     <form on:submit|preventDefault={handleJoin} class="mb-4 flex flex-col">
       <input
-        class="mb-3 rounded border border-gray-800 bg-gray-800 px-4 py-2"
+        bind:this={input}
+        on:blur={() => (isTouched = true)}
+        class="mb-3 rounded border bg-gray-800 px-4 py-2 {isTouched &&
+        playerName.length < 1
+          ? 'border-red-500 ring-red-500'
+          : 'border-gray-800'}"
         placeholder="Enter a name"
         type="text"
         bind:value={playerName}

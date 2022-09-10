@@ -7,7 +7,7 @@
   {
     "question":"What’s the difference between a debit and a credit card?",
     "answerChoices":["Debit cards take funds from your account in real time; credit cards are billed later","Debit cards are billed later; credit cards take funds from your account in real time","Credit cards are for people age 40 and older; debit cards are for younger people", "Debit cards can only be used online; credit cards can be used at the register"],
-    "answer":"Debit cards take funds from your account in real time"
+    "answer":"Debit cards take funds from your account in real time; credit cards are billed later"
   },
   {
     "question":"What kind of loans can I use to pay for college?",
@@ -41,7 +41,7 @@
   },
   {
     "question":"How does gross pay differ from net pay?",
-    "answerChoices":["A gross pay is what you bring home after taxes; net pay is before taxes", "Gross pay is before taxes; met pay is what you bring home after taxes", "Gross pay is when you're not happy with your salary; net pay is when you're happy", "Gross pay is when you get an advance on your paycheck; net pay is when you get your paycheck at the normal time"],
+    "answerChoices":["Gross pay is what you bring home after taxes; net pay is before taxes", "Gross pay is before taxes; met pay is what you bring home after taxes", "Gross pay is when you're not happy with your salary; net pay is when you're happy", "Gross pay is when you get an advance on your paycheck; net pay is when you get your paycheck at the normal time"],
     "answer":"Gross pay is before taxes; met pay is what you bring home after taxes"
   },
   {

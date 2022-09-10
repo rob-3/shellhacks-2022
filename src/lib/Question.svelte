@@ -11,31 +11,44 @@
   };
 
   let question = generateQuestion();
-  let checkAnswer = (answerChoice, answer) => {
+  let handleAnswer = (target, answerChoice, answer) => {
+    target.classList.remove("choice");
     if (answerChoice === answer) {
-      dispatch("correct");
+      target.classList.add("correct-choice");
+      setTimeout(() => {
+        dispatch("correct");
+      }, 5000);
       return;
     }
-    question = generateQuestion();
+    target.classList.add("wrong-choice");
+    setTimeout(() => {
+      question = generateQuestion();
+      target.classList.remove("wrong-choice");
+      target.classList.add("choice");
+    }, 5000);
   };
 </script>
 
 <Modal>
-  <div class="text-2xl text-blue-200">Question</div>
-  <div class="mb-10 text-4xl">{question.question}</div>
-  <ul class="max-w-400px flex flex-col gap-2">
-    {#each question.answerChoices as answerChoice}
-      <li
-        class="choice"
-        on:click={() => checkAnswer(answerChoice, question.answer)}
-      >
-        {answerChoice}
-      </li>
-    {/each}
-  </ul>
+  <div class="max-w-sm">
+    <div class="text-2xl text-blue-200">Question</div>
+    <div class="mb-10 text-4xl">{question.question}</div>
+    <ul class="flex flex-col gap-2 overflow-auto">
+      {#each question.answerChoices as answerChoice}
+        <li
+          class="choice"
+          on:click={({ target }) => {
+            handleAnswer(target, answerChoice, question.answer);
+          }}
+        >
+          {answerChoice}
+        </li>
+      {/each}
+    </ul>
+  </div>
 </Modal>
 
-<style>
+<style global>
   .choice {
     @apply flex cursor-pointer items-center justify-between rounded-xl bg-gray-800  px-5 py-3 transition;
   }

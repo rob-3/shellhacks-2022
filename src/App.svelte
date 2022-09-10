@@ -59,7 +59,7 @@
         board[x][y] = color;
       }
 
-      if (playerState === "dead") {
+      if (playerState === "dead" && !isAnsweringQuestion) {
         isDead = true;
       }
     });
@@ -127,7 +127,6 @@
   <Question
     on:correct={() => {
       ws.send("quiz_success");
-      isDead = false;
       isAnsweringQuestion = false;
     }}
   />
