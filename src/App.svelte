@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy,onMount } from "svelte";
   import "./app.css";
   import Death from "./lib/Death.svelte";
   import Join from "./lib/Join.svelte";

@@ -1,14 +1,52 @@
 [
   {
     "question":"At what age should you start trying to build credit?",
-    "answerChoices":["21","18","Now (once you’re added as an authorized user to a credit card)", "25"]
+    "answerChoices":["21","18","Now (once you’re added as an authorized user to a credit card)", "25"],
+    "answer":"Now (once you’re added as an authorized user to a credit card)"
   },
   {
-    "question":"Question 2",
-    "answerChoices":["A","B","C"]
+    "question":"What’s the difference between a debit and a credit card?",
+    "answerChoices":["Debit cards take funds from your account in real time; credit cards are billed later","Debit cards are billed later; credit cards take funds from your account in real time","Credit cards are for people age 40 and older; debit cards are for younger people", "Debit cards can only be used online; credit cards can be used at the register"],
+    "answer":"Debit cards take funds from your account in real time"
   },
   {
-    "question":"Question 2",
-    "answerChoices":["A","B","C"]
+    "question":"What kind of loans can I use to pay for college?",
+    "answerChoices":["Federal loans","Private loans","Refinanced loans after you leave school", "All of the above"],
+    "answer":"All of the above"
+  },
+  {
+    "question":" When’s the right time to start using a debit card?",
+    "answerChoices":["When you graduate from high school", "When you graduate from college", "When you buy your first home", "When you are beginning to save money"],
+    "answer":"When you are beginning to save money"
+  },
+  {
+    "question":"What minimum percentage of income is recommended to set aside as savings each month?",
+    "answerChoices":["5%","10%","50%", "75%"],
+    "answer":"10%"
+  },
+  {
+    "question":"What does interest on a loan mean?",
+    "answerChoices":["It's the cost of borrowing money, which you pay monthly", "When you're really happy about securing a loan", "The total amount you'll pay over the course of the loan", "The name of the bank that provides you with the loan"],
+    "answer":"It's the cost of borrowing money, which you pay monthly"
+  },
+  {
+    "question":"What should you evaluate when getting a student loan?",
+    "answerChoices":["Total fees", "Interest rate", "Length of repayment", "All of the above"],
+    "answer":"All of the above"
+  },
+  {
+    "question":"What is compound interest in a savings account?",
+    "answerChoices":["Additional fees", "A portion of annual earnings", "Money you earn on both the money you've saved and your account's accumulated interest", "None of the above"],
+    "answer":"Money you earn on both the money you've saved and your account's accumulated interest"
+  },
+  {
+    "question":"How does gross pay differ from net pay?",
+    "answerChoices":["A gross pay is what you bring home after taxes; net pay is before taxes", "Gross pay is before taxes; met pay is what you bring home after taxes", "Gross pay is when you're not happy with your salary; net pay is when you're happy", "Gross pay is when you get an advance on your paycheck; net pay is when you get your paycheck at the normal time"],
+    "answer":"Gross pay is before taxes; met pay is what you bring home after taxes"
+  },
+  {
+    "question":"Which of these credit scores is the best?",
+    "answerChoices":["580", "670", "740", "820"],
+    "answer":"820"
   }
 ]

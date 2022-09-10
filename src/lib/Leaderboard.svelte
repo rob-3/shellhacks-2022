@@ -2,8 +2,8 @@
 </script>
 
 <div
-    id="leaderboard"
-  class="fixed rounded top-1 right-1 bg-gray-900 px-6 py-3 text-white"
+  id="leaderboard"
+  class="fixed top-1 right-1 rounded bg-gray-900 px-6 py-3 text-white"
 >
   <div class="mb-1 text-xl">Leaderboard</div>
   <table class="w-[250px] table-auto">
