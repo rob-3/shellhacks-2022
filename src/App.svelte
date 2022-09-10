@@ -59,15 +59,15 @@
 					ws.send("up");
 				break;
 				case "ArrowDown":
-				case "a":
+				case "s":
 					ws.send("down");
 				break;
 				case "ArrowRight":
-				case "s":
+				case "d":
 				ws.send("right");
 				break;
 				case "ArrowLeft":
-				case "d":
+				case "a":
 					ws.send("left");
 				break;
 			}
