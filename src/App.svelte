@@ -7,11 +7,12 @@
 	let isFirstTime = false;
 	import { onDestroy, onMount } from "svelte";
 
-	let board: boolean[][];
+	let board: string[][];
 	let ctx: CanvasRenderingContext2D;
 	let ws: WebSocket;
 
-	const drawAt = (x: number, y: number): void => {
+	const drawAt = (color: string, x: number, y: number): void => {
+		ctx.fillStyle = color;
 		ctx.fillRect(6 + x*25, 6 + y*25, 19, 19);
 	}
 
@@ -20,12 +21,12 @@
 	let clientHeight: number;
 	let clientWidth: number;
 
-	const renderBoard = (board: boolean[][]) => {
+	const renderBoard = (board: string[][]) => {
 		ctx.clearRect(0, 0, clientWidth , clientHeight);
 		for (let i = 0; i < 100; i++) {
 			for (let j = 0; j < 100; j++) {
 				if (board[j][i]) {
-					drawAt(i, j);
+					drawAt(board[j][i], i, j);
 				}
 			}
 		}
@@ -42,8 +43,8 @@
 		});
 		ws.addEventListener('message', (event) => {
 			console.log(event.data);
-			const { board: newBoardState, playerState } = JSON.parse(event.data);
-			board = newBoardState;
+			const { gameState } = JSON.parse(event.data);
+			board = gameState.board;
 		});
 	}
 
