@@ -179,8 +179,14 @@ let interval = setInterval(() => {
   players.forEach((player) => {
     if (player && player.state === 'alive') {
       moveOutcome(player);
-      player.client.send(JSON.stringify({gameState: updates, playerState: player.state}));
-      updates = []
     }
   });
+
+  players.forEach((player) => {
+    if (player) {
+    player.client.send(JSON.stringify({gameState: updates, playerState: player.state}));
+    }
+  });
+  updates = []
+
 }, 200);
