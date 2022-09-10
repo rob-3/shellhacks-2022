@@ -38,14 +38,13 @@
 		ws = new WebSocket('ws://localhost:8081');
 		ws.addEventListener('open', () => {
 			console.log('socket open')
+			ws.send('#B2554D');
 		});
 		ws.addEventListener('message', (event) => {
 			console.log(event.data);
 			const { board: newBoardState, playerState } = JSON.parse(event.data);
 			board = newBoardState;
 		});
-		//console.log(`color is: ${playerColor}`);
-		ws.send('#B2554D');
 	}
 
 	onMount(() => {
