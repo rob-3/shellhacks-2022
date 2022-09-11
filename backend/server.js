@@ -11,7 +11,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 exports.__esModule = true;
-var WebSocket = require("ws");
+var ws_1 = require("ws");
 function sample(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -74,7 +74,7 @@ var Update = /** @class */ (function () {
     }
     return Update;
 }());
-var players = new Array();
+var players = [];
 var gameState = new GameState();
 function findOpenPosition() {
     var openSpots = [];
@@ -85,8 +85,9 @@ function findOpenPosition() {
             }
         }
     }
-    if (openSpots.length === 0)
-        return null;
+    if (openSpots.length === 0) {
+        throw Error("No more open spots");
+    }
     return sample(openSpots);
 }
 function findApples() {
@@ -202,7 +203,7 @@ function sendLeaderboardText(player) {
     })
         .then(function (message) { return console.log(message.sid); });
 }
-var socket = new WebSocket.Server({ port: 8081 });
+var socket = new ws_1.WebSocketServer({ port: 8081 });
 var i = 0;
 socket.on("connection", function (ws) {
     console.log("player ".concat(i, " has connected"));
@@ -212,8 +213,12 @@ socket.on("connection", function (ws) {
         var messageString = data.toString();
         // Check with team on request structure
         if (messageString === 'quiz_success') {
-            var existingPlayer = players[id];
-            players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+            var existingPlayer = players.find(function (p) { return p.client === ws; });
+            if (!existingPlayer) {
+                throw Error("couldn't match existingPlayer to a real player");
+            }
+            var index = players.findIndex(function (p) { return p.client === ws; });
+            players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
             fillBoard();
         }
         // Check with team on request structure
@@ -223,8 +228,12 @@ socket.on("connection", function (ws) {
             fillBoard();
         }
         else {
-            if (directions[data.toString()] !== -directions[players[id].currDirection]) {
-                players[id].currDirection = data.toString();
+            var player_1 = players.find(function (p) { return p.client === ws; });
+            if (!player_1) {
+                throw Error("Couldn't find player!");
+            }
+            if (directions[messageString] !== -directions[player_1.currDirection]) {
+                player_1.currDirection = messageString;
             }
         }
     });
@@ -233,9 +242,16 @@ socket.on("connection", function (ws) {
             var playerName = _a.playerName, isFinal = _a.isFinal;
             return playerName === player.name && !isFinal;
         });
+        if (!entry) {
+            throw Error("Entry doesn't have name ".concat(player.name, " in it!"));
+        }
         entry.isFinal = true;
-        removePlayer(players[id]);
-        players[id] = null;
+        var index = players.findIndex(function (p) { return p.client === ws; });
+        if (!player) {
+            throw Error("Player couldn't be found when removing!");
+        }
+        removePlayer(player);
+        players.splice(index, 1);
         console.log("Player " + id + " has disconnected");
     });
 });

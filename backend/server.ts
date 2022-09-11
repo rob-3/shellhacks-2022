@@ -1,4 +1,4 @@
-import * as WebSocket from 'ws';
+import { WebSocket, WebSocketServer } from 'ws';
 
 function sample<T>(arr: T[]) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -95,7 +95,7 @@ class Update {
   }
 }
 
-const players = new Array();
+const players: Player[] = [];
 const gameState = new GameState();
 
 function findOpenPosition() {
@@ -108,7 +108,9 @@ function findOpenPosition() {
 		}
 	}
 
-	if (openSpots.length === 0) return null;
+	if (openSpots.length === 0) {
+    throw Error("No more open spots");
+  }
     
 	return sample(openSpots);
 }
@@ -158,7 +160,7 @@ function moveOutcome(player: Player) {
 
 // The value at the head indicates index within game board
 function moveSnake(player: Player) {
-  const tail = player.snake.pop();
+  const tail = player.snake.pop()!;
   // Remove tail from gameboard
   gameState.board[Math.floor(tail / width)][tail % width] = '';
   player.snake.unshift(player.snake[0] + directions[player.currDirection]);
@@ -247,7 +249,7 @@ function sendLeaderboardText(player: { phoneNumber: string }) {
     .then((message: any) => console.log(message.sid));
 }
 
-const socket = new WebSocket.Server({ port: 8081 });
+const socket = new WebSocketServer({ port: 8081 });
 
 let i = 0;
 socket.on("connection", (ws) => {
@@ -258,8 +260,12 @@ socket.on("connection", (ws) => {
     let messageString = data.toString();
     // Check with team on request structure
     if (messageString === 'quiz_success') {
-      let existingPlayer = players[id];
-      players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+      const existingPlayer = players.find(p => p.client === ws);
+      if (!existingPlayer) {
+        throw Error("couldn't match existingPlayer to a real player");
+      }
+      const index = players.findIndex(p => p.client === ws);
+      players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
       fillBoard();
     }
     // Check with team on request structure
@@ -268,17 +274,28 @@ socket.on("connection", (ws) => {
       players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
       fillBoard();
     } else {
-      if (directions[data.toString()] !== -directions[players[id].currDirection]) {
-        players[id].currDirection = data.toString();
+      const player = players.find(p => p.client === ws);
+      if (!player) {
+        throw Error("Couldn't find player!");
+      }
+      if (directions[messageString] !== -directions[player.currDirection]) {
+        player.currDirection = messageString;
       }
     }
   });
   
   ws.on("close", () => {
     const entry = leaderboard.find(({ playerName, isFinal }) => playerName === player.name && !isFinal);
+    if (!entry) {
+      throw Error(`Entry doesn't have name ${player.name} in it!`);
+    }
     entry.isFinal = true;
-    removePlayer(players[id]);
-    players[id] = null;
+    const index = players.findIndex(p => p.client === ws);
+    if (!player) {
+      throw Error("Player couldn't be found when removing!");
+    }
+    removePlayer(player);
+    players.splice(index, 1);
     console.log("Player " + id + " has disconnected");
   });
 });
