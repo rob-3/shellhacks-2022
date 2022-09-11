@@ -145,14 +145,14 @@ function checkForHits(player) {
     return true;
   }
 
-  if ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] != 'red') && 
-    (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] != ''))
+  if ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== 'red') && 
+    (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== ''))
     {
-      players.forEach(collision => {
+      players.forEach(collision => {       
         for (let i = 0; i < player.snake.length; i++)
         {
-          if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === collision.color
-          && (player.snake[0] + dir) === collision.snake[i])
+          if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === collision?.color
+          && (player.snake[0] + dir) === collision?.snake[i])
           {
             collision.score += 5
           }
