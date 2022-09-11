@@ -24,14 +24,6 @@
   img.src = "/25498.jpg";
 
   const drawAt = (color: string, x: number, y: number): void => {
-    if (color === "coin") {
-      ctx.drawImage(img, 
-        paddingPerBlock / 2 + x * pixelsPerBlock,
-        paddingPerBlock / 2 + y * pixelsPerBlock,
-        drawablePixelsPerBlock,
-        drawablePixelsPerBlock
-      );
-    }
     ctx.fillStyle = color;
     ctx.fillRect(
       paddingPerBlock / 2 + x * pixelsPerBlock,
