@@ -1,5 +1,8 @@
-import * as _ from "lodash";
 import * as WebSocket from 'ws';
+
+function sample<T>(arr: T[]) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
 
 require('dotenv').config();
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -107,7 +110,7 @@ function findOpenPosition() {
 
 	if (openSpots.length === 0) return null;
     
-	return _.sample(openSpots);
+	return sample(openSpots);
 }
 
 function findApples() {

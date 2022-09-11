@@ -11,8 +11,10 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 exports.__esModule = true;
-var _ = require("lodash");
 var WebSocket = require("ws");
+function sample(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
+}
 require('dotenv').config();
 var accountSid = process.env.TWILIO_ACCOUNT_SID;
 var authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -85,7 +87,7 @@ function findOpenPosition() {
     }
     if (openSpots.length === 0)
         return null;
-    return _.sample(openSpots);
+    return sample(openSpots);
 }
 function findApples() {
     for (var i_1 = 0; i_1 < gameState.board.length; i_1++) {
