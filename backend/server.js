@@ -18,6 +18,25 @@ const directions = {
   left: -1
 };
 
+function updateLeaderboard(player) {
+  let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
+  const entry = leaderboard[index];
+  if (entry && !entry.isFinal) {
+    entry.score = player.score;
+    while (index !== 0 && entry.score > leaderboard[index-1].score) {
+      let temp = leaderboard[index-1];
+      leaderboard[index-1] = entry;
+      leaderboard[index] = temp;
+      if (index === 5) {
+        sendLeaderboardText(leaderboard[5]);
+      }
+      index--;
+    }
+  } else {
+    leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+  }
+}
+
 class Player {
   constructor(client, color, snake, currDirection, name, phoneNumber, score) {
     this.client = client
@@ -138,6 +157,7 @@ function checkForHits(player) {
           && (player.snake[0] + dir) === collision?.snake[i])
           {
             collision.score += 5;
+            updateLeaderboard(collision);
           }
         }
       });
@@ -158,22 +178,7 @@ function eatApple(player, tail) {
     gameState.board[newApple['x']][newApple['y']] = 'red';
     updates.push(new Update(newApple['x'], newApple['y'], 'red'));
     player.score++;
-    let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
-    const entry = leaderboard[index];
-    if (entry && !entry.isFinal) {
-      entry.score = player.score;
-      while (index !== 0 && entry.score > leaderboard[index-1].score) {
-        let temp = leaderboard[index-1];
-        leaderboard[index-1] = entry;
-        leaderboard[index] = temp;
-        if (index === 5) {
-          sendLeaderboardText(leaderboard[5]);
-        }
-        index--;
-      }
-    } else {
-      leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
-    }
+    updateLeaderboard(player);
   }
 }
 
