@@ -114,6 +114,7 @@
 
 <div class="m-4 grid place-items-center">
   <canvas class="border-4 border-gray-900" id="canvas" height="850" width="850" />
+  <a href="https://www.freepik.com/free-vector/dollar_2900482.htm#query=pixel%20coin&position=7&from_view=keyword">Coin image by rawpixel.com on Freepik</a>
 </div>
 
 <UI scoreboard={scoreboard} playerName={playerName} playerLength={playerLength}/>

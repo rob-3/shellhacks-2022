@@ -36,7 +36,7 @@
 
 <div transition:fade class="fixed inset-0 bg-gray-900 text-white">
   <div class="flex h-full flex-col items-center justify-center">
-    <div class="mb-6 text-center text-4xl">Snake Battle Royale</div>
+    <div class="mb-6 text-center text-4xl">FinanceViper</div>
     <form on:submit|preventDefault={handleJoin} class="mb-4 flex flex-col">
       <input
         bind:this={input}
