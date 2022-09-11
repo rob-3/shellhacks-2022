@@ -299,10 +299,11 @@ socket.on("connection", (ws) => {
     }
     const index = players.findIndex(p => p.id === id);
     if (index === -1) {
-      throw Error("Player couldn't be found when removing!");
+      console.log("Player left before joining");
+    } else {
+      removePlayer(players[index]);
+      players.splice(index, 1);
     }
-    removePlayer(players[index]);
-    players.splice(index, 1);
     console.log("Player " + id + " has disconnected");
   });
 });

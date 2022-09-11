@@ -158,6 +158,8 @@ function checkForHits(player) {
     if ((gameState.board[nextY][nextX] !== 'red') &&
         (gameState.board[nextY][nextX] !== '')) {
         players.forEach(function (collision) {
+            if (collision.id === player.id)
+                return;
             for (var _i = 0, _a = collision.snake; _i < _a.length; _i++) {
                 var otherSnakeCell = _a[_i];
                 if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
@@ -252,10 +254,12 @@ socket.on("connection", function (ws) {
         }
         var index = players.findIndex(function (p) { return p.id === id; });
         if (index === -1) {
-            throw Error("Player couldn't be found when removing!");
+            console.log("Player left before joining");
         }
-        removePlayer(players[index]);
-        players.splice(index, 1);
+        else {
+            removePlayer(players[index]);
+            players.splice(index, 1);
+        }
         console.log("Player " + id + " has disconnected");
     });
 });
