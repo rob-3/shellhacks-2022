@@ -145,3 +145,9 @@
     }}
   />
 {/if}
+
+<style>
+* {
+  overflow: hidden;
+}
+</style>
