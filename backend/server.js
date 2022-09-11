@@ -1,4 +1,3 @@
-const alert = require('alert-node');
 const _ = require('lodash');
 const WebSocket = require('ws');
 
