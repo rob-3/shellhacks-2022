@@ -57,6 +57,7 @@ class Player {
   color: string;
   snake: number[];
   client: WebSocket;
+  id: number;
   constructor(
     client: WebSocket,
     color: string,
@@ -64,7 +65,8 @@ class Player {
     currDirection: Direction,
     name: string,
     phoneNumber: string,
-    score: number
+    score: number,
+    id: number
   ) {
     this.client = client;
     this.currDirection = currDirection;
@@ -74,6 +76,7 @@ class Player {
     this.state = 'alive';
     this.phoneNumber = phoneNumber;
     this.name = name;
+    this.id = id;
   }
 }
 
@@ -221,7 +224,8 @@ function generatePlayer(
   size: number,
   name: string,
   phoneNumber: string,
-  score: number
+  score: number,
+  id: number
 ) {
   const coords = findOpenPosition();
   const dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
@@ -236,7 +240,7 @@ function generatePlayer(
     }
   }
 
-  return new Player(client, color, snake, dir, name, phoneNumber, score);
+  return new Player(client, color, snake, dir, name, phoneNumber, score, id);
 }
 
 function sendLeaderboardText(player: { phoneNumber: string }) {
@@ -260,21 +264,21 @@ socket.on("connection", (ws) => {
     let messageString = data.toString();
     // Check with team on request structure
     if (messageString === 'quiz_success') {
-      const existingPlayer = players.find(p => p.client === ws);
+      const existingPlayer = players.find(p => p.id === id);
       if (!existingPlayer) {
         throw Error("couldn't match existingPlayer to a real player");
       }
-      const index = players.findIndex(p => p.client === ws);
-      players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+      const index = players.findIndex(p => p.id === id);
+      players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score, id);
       fillBoard();
     }
     // Check with team on request structure
     else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
       player = JSON.parse(data.toString());
-      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
+      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0, id));
       fillBoard();
     } else {
-      const player = players.find(p => p.client === ws);
+      const player = players.find(p => p.id === id);
       if (!player) {
         throw Error("Couldn't find player!");
       }
@@ -289,8 +293,8 @@ socket.on("connection", (ws) => {
     if (entry) {
       entry.isFinal = true;
     }
-    const index = players.findIndex(p => p.client === ws);
-    if (!player) {
+    const index = players.findIndex(p => p.id === id);
+    if (index === -1) {
       throw Error("Player couldn't be found when removing!");
     }
     removePlayer(player);

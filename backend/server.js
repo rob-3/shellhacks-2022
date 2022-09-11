@@ -48,7 +48,7 @@ function updateLeaderboard(player) {
     }
 }
 var Player = /** @class */ (function () {
-    function Player(client, color, snake, currDirection, name, phoneNumber, score) {
+    function Player(client, color, snake, currDirection, name, phoneNumber, score, id) {
         this.client = client;
         this.currDirection = currDirection;
         this.snake = snake;
@@ -57,6 +57,7 @@ var Player = /** @class */ (function () {
         this.state = 'alive';
         this.phoneNumber = phoneNumber;
         this.name = name;
+        this.id = id;
     }
     return Player;
 }());
@@ -178,7 +179,7 @@ function eatApple(player, tail) {
         updateLeaderboard(player);
     }
 }
-function generatePlayer(client, color, size, name, phoneNumber, score) {
+function generatePlayer(client, color, size, name, phoneNumber, score, id) {
     var coords = findOpenPosition();
     var dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
     var snake = [];
@@ -192,7 +193,7 @@ function generatePlayer(client, color, size, name, phoneNumber, score) {
             snake.push(coords['x'] * width + coords['y'] - i_6);
         }
     }
-    return new Player(client, color, snake, dir, name, phoneNumber, score);
+    return new Player(client, color, snake, dir, name, phoneNumber, score, id);
 }
 function sendLeaderboardText(player) {
     twilioClient.messages
@@ -213,22 +214,22 @@ socket.on("connection", function (ws) {
         var messageString = data.toString();
         // Check with team on request structure
         if (messageString === 'quiz_success') {
-            var existingPlayer = players.find(function (p) { return p.client === ws; });
+            var existingPlayer = players.find(function (p) { return p.id === id; });
             if (!existingPlayer) {
                 throw Error("couldn't match existingPlayer to a real player");
             }
-            var index = players.findIndex(function (p) { return p.client === ws; });
-            players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+            var index = players.findIndex(function (p) { return p.id === id; });
+            players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score, id);
             fillBoard();
         }
         // Check with team on request structure
         else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
             player = JSON.parse(data.toString());
-            players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
+            players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0, id));
             fillBoard();
         }
         else {
-            var player_1 = players.find(function (p) { return p.client === ws; });
+            var player_1 = players.find(function (p) { return p.id === id; });
             if (!player_1) {
                 throw Error("Couldn't find player!");
             }
@@ -245,8 +246,8 @@ socket.on("connection", function (ws) {
         if (entry) {
             entry.isFinal = true;
         }
-        var index = players.findIndex(function (p) { return p.client === ws; });
-        if (!player) {
+        var index = players.findIndex(function (p) { return p.id === id; });
+        if (index === -1) {
             throw Error("Player couldn't be found when removing!");
         }
         removePlayer(player);
