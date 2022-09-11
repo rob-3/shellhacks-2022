@@ -149,14 +149,20 @@ function checkForHits(player) {
         (player.snake[0] % width === width - 1 && dir === 1) ||
         (player.snake[0] % width === 0 && dir === -1) ||
         (player.snake[0] - width <= 0 && dir === -width)) {
+        console.log('died by going offscreen');
+        console.log(player.snake[0] + width >= width * width && dir === width);
+        console.log(player.snake[0] % width === width - 1 && dir === 1);
+        console.log(player.snake[0] % width === 0 && dir === -1);
+        console.log(player.snake[0] - width <= 0 && dir === -width);
         return true;
     }
     var head = player.snake[0];
     var nextCell = head + dir;
     var nextY = Math.floor(nextCell / width);
     var nextX = nextCell % width;
-    if ((gameState.board[nextY][nextX] !== 'red') &&
-        (gameState.board[nextY][nextX] !== '')) {
+    var hitNonEmptySquare = gameState.board[nextY][nextX] !== 'red' &&
+        gameState.board[nextY][nextX] !== '';
+    if (hitNonEmptySquare) {
         players.forEach(function (collision) {
             if (collision.id === player.id)
                 return;
@@ -165,6 +171,8 @@ function checkForHits(player) {
                 if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
                     collision.score += 5;
                     updateLeaderboard(collision);
+                    console.log('died by collision');
+                    console.log(JSON.stringify(collision));
                 }
             }
         });

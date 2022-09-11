@@ -183,6 +183,11 @@ function checkForHits(player: Player) {
     (player.snake[0] % width === 0 && dir === -1) ||
     (player.snake[0] - width <= 0 && dir === -width)
   ) {
+    console.log('died by going offscreen');
+    console.log(player.snake[0] + width >= width * width && dir === width);
+    console.log(player.snake[0] % width === width - 1 && dir === 1);
+    console.log(player.snake[0] % width === 0 && dir === -1);
+    console.log(player.snake[0] - width <= 0 && dir === -width);
     return true;
   }
 
@@ -190,22 +195,23 @@ function checkForHits(player: Player) {
   const nextCell = head + dir;
   const nextY = Math.floor(nextCell / width);
   const nextX = nextCell % width;
-  if ((gameState.board[nextY][nextX] !== 'red') && 
-    (gameState.board[nextY][nextX] !== ''))
-    {
-      players.forEach(collision => {       
-        if (collision.id === player.id) return;
-        for (const otherSnakeCell of collision.snake) {
-          if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
-            collision.score += 5;
-            updateLeaderboard(collision);
-          }
+  const hitNonEmptySquare = gameState.board[nextY][nextX] !== 'red' &&
+    gameState.board[nextY][nextX] !== '';
+  if (hitNonEmptySquare) {
+    players.forEach(collision => {
+      if (collision.id === player.id) return;
+      for (const otherSnakeCell of collision.snake) {
+        if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
+          collision.score += 5;
+          updateLeaderboard(collision);
+          console.log('died by collision');
+          console.log(JSON.stringify(collision));
         }
-      });
-
-      return true;
-    }
-    return false;
+      }
+    });
+    return true;
+  }
+  return false;
 }
 
 function eatApple(player: Player, tail: number) {
