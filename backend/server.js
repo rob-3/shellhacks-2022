@@ -145,15 +145,17 @@ function moveSnake(player) {
 }
 function checkForHits(player) {
     var dir = directions[player.currDirection];
-    if ((player.snake[0] + width >= width * width && dir === width) ||
-        (player.snake[0] % width === width - 1 && dir === 1) ||
-        (player.snake[0] % width === 0 && dir === -1) ||
-        (player.snake[0] - width <= 0 && dir === -width)) {
+    var snakeHead = player.snake[0];
+    if ((snakeHead + width >= width * width && dir === width) ||
+        (snakeHead % width === width - 1 && dir === 1) ||
+        (snakeHead % width === 0 && dir === -1) ||
+        (snakeHead - width <= 0 && dir === -width)) {
         console.log('died by going offscreen');
-        console.log(player.snake[0] + width >= width * width && dir === width);
-        console.log(player.snake[0] % width === width - 1 && dir === 1);
-        console.log(player.snake[0] % width === 0 && dir === -1);
-        console.log(player.snake[0] - width <= 0 && dir === -width);
+        console.log(snakeHead + width >= width * width && dir === width);
+        console.log(snakeHead % width === width - 1 && dir === 1);
+        console.log(snakeHead % width === 0 && dir === -1);
+        console.log(snakeHead - width <= 0 && dir === -width);
+        console.log(snakeHead, width, dir);
         return true;
     }
     var head = player.snake[0];
@@ -282,8 +284,16 @@ setInterval(function () {
             var _ = _a.phoneNumber, entry = __rest(_a, ["phoneNumber"]);
             return entry;
         });
+        if (!noPhoneLeaderboard.find(function (p) { return p.playerId === player.id && !p.isFinal; })) {
+            noPhoneLeaderboard.push({
+                playerName: player.name,
+                isFinal: false,
+                score: player.score,
+                playerId: player.id
+            });
+        }
         if (player) {
-            player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: noPhoneLeaderboard }));
+            player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: { scoreboard: noPhoneLeaderboard, playerScore: player.score, playerLength: player.snake.length } }));
         }
     });
     updates = [];

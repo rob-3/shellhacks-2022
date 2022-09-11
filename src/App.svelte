@@ -16,6 +16,9 @@
   let paddingPerBlock: number;
   let drawablePixelsPerBlock: number;
   let scoreboard;
+  let playerScore: number;
+  let playerName: string;
+  let playerLength: number;
 
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
@@ -44,6 +47,7 @@
     console.log(event);
     console.log("opening socket");
     ws = new WebSocket("ws://20.106.75.32:8081");
+    playerName = event.detail.playerName;
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(JSON.stringify({color: event.detail.playerColor, name: event.detail.playerName, phoneNumber: "+1" + event.detail.phoneNumber}));
@@ -52,7 +56,7 @@
     ws.addEventListener("message", (event) => {
       console.log(event.data);
       const { gameState, playerState: serverStatus, leaderboard } = JSON.parse(event.data);
-      scoreboard = leaderboard;
+      ({ scoreboard, playerScore, playerLength } = leaderboard);
       for (const { x, y, color } of gameState) {
         board[x][y] = color;
       }
@@ -110,9 +114,10 @@
 
 <div class="m-4 grid place-items-center">
   <canvas class="border-4 border-gray-900" id="canvas" height="850" width="850" />
+  <a href="https://www.freepik.com/free-vector/dollar_2900482.htm#query=pixel%20coin&position=7&from_view=keyword">Coin image by rawpixel.com on Freepik</a>
 </div>
 
-<UI scoreboard={scoreboard} />
+<UI scoreboard={scoreboard} playerName={playerName} playerLength={playerLength}/>
 
 {#if localStatus === "joining"}
   <Join on:close={onLogin} />

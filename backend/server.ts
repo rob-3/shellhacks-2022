@@ -177,17 +177,19 @@ function moveSnake(player: Player) {
 
 function checkForHits(player: Player) {
   const dir = directions[player.currDirection]
+  const snakeHead = player.snake[0];
   if (
-    (player.snake[0] + width >= width * width && dir === width) ||
-    (player.snake[0] % width === width - 1 && dir === 1) ||
-    (player.snake[0] % width === 0 && dir === -1) ||
-    (player.snake[0] - width <= 0 && dir === -width)
+    (snakeHead + width >= width * width && dir === width) ||
+    (snakeHead % width === width - 1 && dir === 1) ||
+    (snakeHead % width === 0 && dir === -1) ||
+    (snakeHead - width <= 0 && dir === -width)
   ) {
     console.log('died by going offscreen');
-    console.log(player.snake[0] + width >= width * width && dir === width);
-    console.log(player.snake[0] % width === width - 1 && dir === 1);
-    console.log(player.snake[0] % width === 0 && dir === -1);
-    console.log(player.snake[0] - width <= 0 && dir === -width);
+    console.log(snakeHead + width >= width * width && dir === width);
+    console.log(snakeHead % width === width - 1 && dir === 1);
+    console.log(snakeHead % width === 0 && dir === -1);
+    console.log(snakeHead - width <= 0 && dir === -width);
+    console.log(snakeHead, width, dir);
     return true;
   }
 
@@ -323,8 +325,16 @@ setInterval(() => {
 
   players.forEach((player) => {
     const noPhoneLeaderboard = leaderboard.slice(0, 5).map(({ phoneNumber: _, ...entry }) => entry);
+    if (!noPhoneLeaderboard.find(p => p.playerId === player.id && !p.isFinal)) {
+      noPhoneLeaderboard.push({
+        playerName: player.name,
+        isFinal: false,
+        score: player.score,
+        playerId: player.id
+      });
+    }
     if (player) {
-      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: noPhoneLeaderboard }));
+      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: { scoreboard: noPhoneLeaderboard, playerScore: player.score, playerLength: player.snake.length } }));
     }
   });
   updates = [];

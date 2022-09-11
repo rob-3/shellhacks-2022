@@ -38,9 +38,9 @@
 
 <Modal>
   <div class="max-w-sm">
-    <div class="text-2xl text-blue-200">Question</div>
-    <div class="mb-10 text-4xl">{question.question}</div>
-    <ul class="flex flex-col gap-2 overflow-auto">
+    <div class="text-xl text-blue-200">Question</div>
+    <div class="mb-10 text-2xl">{question.question}</div>
+    <ul class="flex flex-col gap-2 overflow-visible">
       {#each question.answerChoices as answerChoice}
         <li
           class="choice"
@@ -57,18 +57,67 @@
 
 <style global>
   .choice {
-    @apply flex cursor-pointer items-center justify-between rounded-xl bg-gray-800  px-5 py-3 transition;
+    @apply flex cursor-pointer items-center justify-between rounded-xl bg-gray-800 px-5 py-3 transition;
   }
 
   .choice:hover {
-    @apply bg-gray-700;
+    @apply scale-105  bg-gray-700;
   }
 
   .correct-choice {
-    @apply flex items-center justify-between rounded-xl bg-green-400 px-5 py-3;
+    @apply flex scale-105 animate-bounce items-center justify-between rounded-xl bg-green-400 px-5 py-3;
+    animation: bounce 2s cubic-bezier(0.28, 0.84, 0.42, 1);
   }
 
   .wrong-choice {
-    @apply flex items-center justify-between rounded-xl bg-red-400 px-5 py-3;
+    @apply flex scale-105 items-center justify-between rounded-xl bg-red-400 px-5 py-3;
+    animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes bounce {
+    0% {
+      transform: scale(1.05) translateY(0);
+    }
+    10% {
+      transform: scale(1.05) translateY(0);
+    }
+    30% {
+      transform: scale(1.05) translateY(-15px);
+    }
+    50% {
+      transform: scale(1.05) translateY(0);
+    }
+    57% {
+      transform: scale(1.05) translateY(0);
+    }
+    64% {
+      transform: scale(1.05) translateY(0);
+    }
+    100% {
+      transform: scale(1.05) translateY(0);
+    }
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: scale(1.025, 1.025) translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: scale(1.025, 1.025) translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: scale(1.025, 1.025) translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: scale(1.025, 1.025) translate3d(4px, 0, 0);
+    }
   }
 </style>

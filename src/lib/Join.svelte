@@ -36,7 +36,7 @@
 
 <div transition:fade class="fixed inset-0 bg-gray-900 text-white">
   <div class="flex h-full flex-col items-center justify-center">
-    <div class="mb-6 text-center text-4xl">Snake Battle Royale</div>
+    <div class="mb-6 text-center text-4xl">FinanceViper</div>
     <form on:submit|preventDefault={handleJoin} class="mb-4 flex flex-col">
       <input
         bind:this={input}
@@ -46,13 +46,13 @@
         playerName.length < 1
           ? 'border-red-500 ring-red-500'
           : 'border-gray-800'}"
-        placeholder="Enter a name"
+        placeholder="Nickname"
         type="text"
         bind:value={playerName}
       />
       <input
         class="mb-3 rounded border border-gray-800 bg-gray-800 px-4 py-2"
-        placeholder="phone number (optional)"
+        placeholder="Phone number (optional)"
         type="text"
         bind:value={phoneNumber}
       />
