@@ -17,6 +17,7 @@ type LeaderboardEntry = {
   phoneNumber: string;
   isFinal: boolean;
   score: number;
+  playerId: number;
 }
 const leaderboard: LeaderboardEntry[] = [];
 
@@ -42,7 +43,7 @@ function updateLeaderboard(player: Player) {
       index--;
     }
   } else {
-    leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+    leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
   }
 }
 
@@ -259,7 +260,6 @@ let i = 0;
 socket.on("connection", (ws) => {
   console.log(`player ${i} has connected`);
   let id = i++;
-  let player: Player;
   ws.on("message", (data) => {
     let messageString = data.toString();
     // Check with team on request structure
@@ -274,7 +274,7 @@ socket.on("connection", (ws) => {
     }
     // Check with team on request structure
     else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
-      player = JSON.parse(data.toString());
+      const player = JSON.parse(data.toString());
       players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0, id));
       fillBoard();
     } else {
@@ -289,7 +289,7 @@ socket.on("connection", (ws) => {
   });
   
   ws.on("close", () => {
-    const entry = leaderboard.find(({ playerName, isFinal }) => playerName === player.name && !isFinal);
+    const entry = leaderboard.find(({ playerId, isFinal }) => playerId === id && !isFinal);
     if (entry) {
       entry.isFinal = true;
     }
@@ -297,7 +297,7 @@ socket.on("connection", (ws) => {
     if (index === -1) {
       throw Error("Player couldn't be found when removing!");
     }
-    removePlayer(player);
+    removePlayer(players[index]);
     players.splice(index, 1);
     console.log("Player " + id + " has disconnected");
   });

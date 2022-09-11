@@ -44,7 +44,7 @@ function updateLeaderboard(player) {
         }
     }
     else {
-        leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+        leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
     }
 }
 var Player = /** @class */ (function () {
@@ -209,7 +209,6 @@ var i = 0;
 socket.on("connection", function (ws) {
     console.log("player ".concat(i, " has connected"));
     var id = i++;
-    var player;
     ws.on("message", function (data) {
         var messageString = data.toString();
         // Check with team on request structure
@@ -224,24 +223,24 @@ socket.on("connection", function (ws) {
         }
         // Check with team on request structure
         else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
-            player = JSON.parse(data.toString());
+            var player = JSON.parse(data.toString());
             players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0, id));
             fillBoard();
         }
         else {
-            var player_1 = players.find(function (p) { return p.id === id; });
-            if (!player_1) {
+            var player = players.find(function (p) { return p.id === id; });
+            if (!player) {
                 throw Error("Couldn't find player!");
             }
-            if (directions[messageString] !== -directions[player_1.currDirection]) {
-                player_1.currDirection = messageString;
+            if (directions[messageString] !== -directions[player.currDirection]) {
+                player.currDirection = messageString;
             }
         }
     });
     ws.on("close", function () {
         var entry = leaderboard.find(function (_a) {
-            var playerName = _a.playerName, isFinal = _a.isFinal;
-            return playerName === player.name && !isFinal;
+            var playerId = _a.playerId, isFinal = _a.isFinal;
+            return playerId === id && !isFinal;
         });
         if (entry) {
             entry.isFinal = true;
@@ -250,7 +249,7 @@ socket.on("connection", function (ws) {
         if (index === -1) {
             throw Error("Player couldn't be found when removing!");
         }
-        removePlayer(player);
+        removePlayer(players[index]);
         players.splice(index, 1);
         console.log("Player " + id + " has disconnected");
     });
