@@ -177,17 +177,19 @@ function moveSnake(player: Player) {
 
 function checkForHits(player: Player) {
   const dir = directions[player.currDirection]
+  const snakeHead = player.snake[0];
   if (
-    (player.snake[0] + width >= width * width && dir === width) ||
-    (player.snake[0] % width === width - 1 && dir === 1) ||
-    (player.snake[0] % width === 0 && dir === -1) ||
-    (player.snake[0] - width <= 0 && dir === -width)
+    (snakeHead + width >= width * width && dir === width) ||
+    (snakeHead % width === width - 1 && dir === 1) ||
+    (snakeHead % width === 0 && dir === -1) ||
+    (snakeHead - width <= 0 && dir === -width)
   ) {
     console.log('died by going offscreen');
-    console.log(player.snake[0] + width >= width * width && dir === width);
-    console.log(player.snake[0] % width === width - 1 && dir === 1);
-    console.log(player.snake[0] % width === 0 && dir === -1);
-    console.log(player.snake[0] - width <= 0 && dir === -width);
+    console.log(snakeHead + width >= width * width && dir === width);
+    console.log(snakeHead % width === width - 1 && dir === 1);
+    console.log(snakeHead % width === 0 && dir === -1);
+    console.log(snakeHead - width <= 0 && dir === -width);
+    console.log(snakeHead, width, dir);
     return true;
   }
 
