@@ -109,7 +109,7 @@
 </script>
 
 <div class="m-4 grid place-items-center">
-  <canvas class="border border-red-500" id="canvas" height="850" width="850" />
+  <canvas class="border-4 border-gray-900" id="canvas" height="850" width="850" />
 </div>
 
 <UI scoreboard={scoreboard} />
