@@ -41,8 +41,8 @@
   },
   {
     "question":"How does gross pay differ from net pay?",
-    "answerChoices":["Gross pay is what you bring home after taxes; net pay is before taxes", "Gross pay is before taxes; met pay is what you bring home after taxes", "Gross pay is when you're not happy with your salary; net pay is when you're happy", "Gross pay is when you get an advance on your paycheck; net pay is when you get your paycheck at the normal time"],
-    "answer":"Gross pay is before taxes; met pay is what you bring home after taxes"
+    "answerChoices":["Gross pay is what you bring home after taxes; net pay is before taxes", "Gross pay is before taxes; net pay is what you bring home after taxes", "Gross pay is when you're not happy with your salary; net pay is when you're happy", "Gross pay is when you get an advance on your paycheck; net pay is when you get your paycheck at the normal time"],
+    "answer":"Gross pay is before taxes; net pay is what you bring home after taxes"
   },
   {
     "question":"Which of these credit scores is the best?",

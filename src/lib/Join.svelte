@@ -4,7 +4,7 @@
 
   let playerColor = "#000000";
   let playerName = "";
-  let phoneNumber = ""
+  let phoneNumber = "";
   let isTouched = false;
 
   const dispatch = createEventDispatcher();
@@ -24,6 +24,14 @@
       phoneNumber,
     });
   };
+
+  const removeErrorStyles = ({ target }) => {
+    if (target.classList.contains("ring-red-500")) {
+      target.classList.remove("ring-red-500");
+      target.classList.remove("border-red-500");
+      target.classList.add("border-gray-800");
+    }
+  };
 </script>
 
 <div transition:fade class="fixed inset-0 bg-gray-900 text-white">
@@ -32,6 +40,7 @@
     <form on:submit|preventDefault={handleJoin} class="mb-4 flex flex-col">
       <input
         bind:this={input}
+        on:input={removeErrorStyles}
         on:blur={() => (isTouched = true)}
         class="mb-3 rounded border bg-gray-800 px-4 py-2 {isTouched &&
         playerName.length < 1
