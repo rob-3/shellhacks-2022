@@ -222,6 +222,7 @@ socket.on("connection", (ws) => {
     if (messageString === 'quiz_success') {
       let existingPlayer = players[id];
       players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+      fillBoard();
     }
     // Check with team on request structure
     else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
