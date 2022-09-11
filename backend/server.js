@@ -253,8 +253,9 @@ setInterval(() => {
   });
 
   players.forEach((player) => {
+    const { phoneNumber: _, ...noPhoneLeaderboard } = leaderboard.slice(0, 5);
     if (player) {
-      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: leaderboard.slice(0, 5) }));
+      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: noPhoneLeaderboard }));
     }
   });
   updates = [];
