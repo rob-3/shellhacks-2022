@@ -1,14 +1,14 @@
-const alert = require('alert-node')
-var _ = require('lodash');
-const WebSocket = require('ws')
+const alert = require('alert-node');
+const _ = require('lodash');
+const WebSocket = require('ws');
 
-require('dotenv').config()
-const accountSid = process.env.TWILIO_ACCOUNT_SID
-const authToken = process.env.TWILIO_AUTH_TOKEN
-const twilioClient = require('twilio')(accountSid, authToken)
+require('dotenv').config();
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioClient = require('twilio')(accountSid, authToken);
 
-let width = 50
-let updates = []
+const width = 50;
+let updates = [];
 
 const leaderboard = [];
 
@@ -17,7 +17,7 @@ const directions = {
   right: 1,
   down: width,
   left: -1
-}
+};
 
 class Player {
   constructor(client, color, snake, currDirection, name, phoneNumber, score) {
@@ -49,93 +49,78 @@ class Update {
 const players = new Array();
 const gameState = new GameState();
 
-function findOpenPosition(){
-	var openSpots = [];
-	for (var x = 0; x < gameState.board.length; x++) {
-		for (var y = 0; y < gameState.board[x].length; y++) {
-			if(gameState.board[x][y] == '')
-				openSpots.push({x:x,y:y});
-		};
-	};
+function findOpenPosition() {
+	const openSpots = [];
+	for (let x = 0; x < gameState.board.length; x++) {
+		for (let y = 0; y < gameState.board[x].length; y++) {
+			if(gameState.board[x][y] === '') {
+				openSpots.push({ x, y });
+      }
+		}
+	}
 
-	if(openSpots.length==0)
-		return null;
+	if (openSpots.length === 0) return null;
     
 	return _.sample(openSpots);
 }
 
-function findApples()
-{
-  for (let i = 0; i < gameState.board.length; i++)
-  {
-    for (let j = 0; j < gameState.board[i].length; j++)
-    {
-      if (gameState.board[i][j] == 'red')
-      {
-        updates.push(new Update(i, j, 'red'))
+function findApples() {
+  for (let i = 0; i < gameState.board.length; i++) {
+    for (let j = 0; j < gameState.board[i].length; j++) {
+      if (gameState.board[i][j] == 'red') {
+        updates.push(new Update(i, j, 'red'));
       }
     }
   }
 }
 
-function fillBoard()
-{
+function fillBoard() {
   players.forEach((player) => {
-    if (!player || player.state === 'dead') 
-      return
+    if (!player || player.state === 'dead') return;
 
-    for (let i = 0; i < player.snake.length; i++)
-    {
-      gameState.board[Math.floor(player.snake[i] / width)][player.snake[i] % width] = player.color
-      updates.push(new Update(Math.floor(player.snake[i] / width), player.snake[i] % width, player.color))
+    for (let i = 0; i < player.snake.length; i++) {
+      gameState.board[Math.floor(player.snake[i] / width)][player.snake[i] % width] = player.color;
+      updates.push(new Update(Math.floor(player.snake[i] / width), player.snake[i] % width, player.color));
     }
 
-    findApples()
-    let newApple = findOpenPosition()
-    gameState.board[newApple['x']][newApple['y']] = 'red'
-    updates.push(new Update(newApple['x'], newApple['y'], 'red'))
+    findApples();
+    let newApple = findOpenPosition();
+    gameState.board[newApple['x']][newApple['y']] = 'red';
+    updates.push(new Update(newApple['x'], newApple['y'], 'red'));
   });
 }
 
-function removePlayer(player)
-{
-  for (let i = 0; i < player.snake.length; i++)
-  {
-    gameState.board[Math.floor( player.snake[i] / width)][player.snake[i] % width] = ''
-    updates.push(new Update(Math.floor(player.snake[i] / width), player.snake[i] % width, ''))
+function removePlayer(player) {
+  for (let i = 0; i < player.snake.length; i++) {
+    gameState.board[Math.floor( player.snake[i] / width)][player.snake[i] % width] = '';
+    updates.push(new Update(Math.floor(player.snake[i] / width), player.snake[i] % width, ''));
   }
-
-  player.snake = []
+  player.snake = [];
 }
 
 function moveOutcome(player) {
-    if (checkForHits(player)) {
-      player.state = 'dead';
-      const entry = leaderboard.find(({ playerName }) => playerName === player.name);
-      // Ask Rob about this code - Dylan
-      if (entry && entry.isFinal) {
-        entry.isFinal = true;
-      }
-      removePlayer(player)
-    } else {
-      moveSnake(player);
-    }
-  };
+  if (checkForHits(player)) {
+    player.state = 'dead';
+    removePlayer(player);
+  } else {
+    moveSnake(player);
+  }
+};
 
 // The value at the head indicates index within game board
 function moveSnake(player) {
-  let tail = player.snake.pop();
+  const tail = player.snake.pop();
   // Remove tail from gameboard
-  gameState.board[Math.floor(tail / width)][tail % width] = ''
+  gameState.board[Math.floor(tail / width)][tail % width] = '';
   player.snake.unshift(player.snake[0] + directions[player.currDirection]);
-  updates.push(new Update(Math.floor(tail / width), tail % width, ''))
+  updates.push(new Update(Math.floor(tail / width), tail % width, ''));
   eatApple(player, tail);
-  gameState.board[Math.floor(player.snake[0] / width)][player.snake[0] % width] = player.color
-  updates.push(new Update(Math.floor(player.snake[0] / width), player.snake[0] % width, player.color))
+  gameState.board[Math.floor(player.snake[0] / width)][player.snake[0] % width] = player.color;
+  updates.push(new Update(Math.floor(player.snake[0] / width), player.snake[0] % width, player.color));
 }
 
 function checkForHits(player) {
-  let dir = directions[player.currDirection]
+  const dir = directions[player.currDirection]
   if (
     (player.snake[0] + width >= width * width && dir === width) ||
     (player.snake[0] % width === width - 1 && dir === 1) ||
@@ -149,12 +134,11 @@ function checkForHits(player) {
     (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== ''))
     {
       players.forEach(collision => {       
-        for (let i = 0; i < player.snake.length; i++)
-        {
+        for (let i = 0; i < player.snake.length; i++) {
           if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === collision?.color
           && (player.snake[0] + dir) === collision?.snake[i])
           {
-            collision.score += 5
+            collision.score += 5;
           }
         }
       });
@@ -166,24 +150,24 @@ function checkForHits(player) {
 
 function eatApple(player, tail) {
   if (gameState.board[Math.floor(player.snake[0] / width)][(player.snake[0] % width)] == 'red') {
-    gameState.board[Math.floor(player.snake[0] / width)][player.snake[0] % width] = ''
-    updates.push(new Update(Math.floor(player.snake[0] / width), player.snake[0] % width, ''))
-    gameState.board[Math.floor(tail / width)][tail % width] = player.color
-    updates.push(new Update(Math.floor(tail / width), tail % width, player.color))
+    gameState.board[Math.floor(player.snake[0] / width)][player.snake[0] % width] = '';
+    updates.push(new Update(Math.floor(player.snake[0] / width), player.snake[0] % width, ''));
+    gameState.board[Math.floor(tail / width)][tail % width] = player.color;
+    updates.push(new Update(Math.floor(tail / width), tail % width, player.color));
     player.snake.push(tail);
-    let newApple = findOpenPosition()
-    gameState.board[newApple['x']][newApple['y']] = 'red'
-    updates.push(new Update(newApple['x'], newApple['y'], 'red'))
+    let newApple = findOpenPosition();
+    gameState.board[newApple['x']][newApple['y']] = 'red';
+    updates.push(new Update(newApple['x'], newApple['y'], 'red'));
     player.score++;
     let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
-    console.log("index is " + index)
+    console.log("index is " + index);
     const entry = leaderboard[index];
     if (entry && !entry.isFinal) {
       entry.score = player.score;
       while (index !== 0 && entry.score > leaderboard[index-1].score) {
         let temp = leaderboard[index-1];
         leaderboard[index-1] = entry;
-        leaderboard[index] = temp
+        leaderboard[index] = temp;
         if (index === 5) {
           sendLeaderboardText(leaderboard[5]);
         }
@@ -195,80 +179,69 @@ function eatApple(player, tail) {
   }
 }
 
-function generatePlayer(client, color, size, name, phoneNumber, score)
-{
-  console.log(color, name, phoneNumber)
-  let coords = findOpenPosition()
-  let dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right'
-  let snake = []
-  if (dir == 'left')
-  {
-    for (let i = 0; i < size; i++)
-      snake.push(coords['x'] * width + coords['y'] + i)
-  }
-  else {
-    for (let i = 0; i < size; i++)
-      snake.push(coords['x'] * width + coords['y'] - i)
+function generatePlayer(client, color, size, name, phoneNumber, score) {
+  console.log(color, name, phoneNumber);
+  const coords = findOpenPosition();
+  const dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
+  const snake = [];
+  if (dir == 'left') {
+    for (let i = 0; i < size; i++) {
+      snake.push(coords['x'] * width + coords['y'] + i);
+    }
+  } else {
+    for (let i = 0; i < size; i++) {
+      snake.push(coords['x'] * width + coords['y'] - i);
+    }
   }
 
-  return new Player(client, color, snake, dir, name, phoneNumber, score)
+  return new Player(client, color, snake, dir, name, phoneNumber, score);
 }
 
-function sendLeaderboardText(player)
-{
+function sendLeaderboardText(player) {
   twilioClient.messages
     .create({
       body: "Somebody knocked you off the leaderboard! Looks like it's time to put your financial literacy skills to the test again!",
       from: "+19717913081",
       to: player.phoneNumber
     })
-    .then(message => console.log(message.sid))
+    .then(message => console.log(message.sid));
 }
 
-let socket = new WebSocket.Server({ port: 8081 });
+const socket = new WebSocket.Server({ port: 8081 });
 
 let i = 0;
 socket.on("connection", (ws) => {
   let id = i++;
   ws.on("message", (data) => {
-    let messageString = data.toString()
+    let messageString = data.toString();
     // Check with team on request structure
-    if (messageString == 'quiz_success')
-    {
-      let existingPlayer = players[id]
-      players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score)
+    if (messageString == 'quiz_success') {
+      let existingPlayer = players[id];
+      players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
     }
     // Check with team on request structure
-    else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
-    {
-      player = JSON.parse(data)
-      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0))
-      fillBoard()
-    }
-    else
-    {
-      if (directions[data.toString()] != -directions[players[id].currDirection])
+    else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right') {
+      const player = JSON.parse(data);
+      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
+      fillBoard();
+    } else {
+      if (directions[data.toString()] != -directions[players[id].currDirection]) {
         players[id].currDirection = data.toString();
+      }
     }
     console.log("Message received:" + data.toString());
-    
-  })
+  });
   
   ws.on("close", () => {
     const entry = leaderboard.find(({ playerName }) => playerName === player.name);
     entry.isFinal = true;
-    removePlayer(players[id])
-    players[id] = null
-    console.log("Player " + id + " has disconnected")
-  })
+    removePlayer(players[id]);
+    players[id] = null;
+    console.log("Player " + id + " has disconnected");
+  });
+});
 
-})
-
-socket.onerror = function(error) {
-  alert(`[error] ${error.message}`);
-};
-
-let interval = setInterval(() => {
+setInterval(() => {
   players.forEach((player) => {
     if (player && player.state === 'alive') {
       moveOutcome(player);
@@ -277,9 +250,8 @@ let interval = setInterval(() => {
 
   players.forEach((player) => {
     if (player) {
-    player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard: leaderboard }));
+      player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard }));
     }
   });
-  updates = []
-
+  updates = [];
 }, 200);
