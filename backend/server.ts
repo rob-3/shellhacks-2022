@@ -194,6 +194,7 @@ function checkForHits(player: Player) {
     (gameState.board[nextY][nextX] !== ''))
     {
       players.forEach(collision => {       
+        if (collision.id === player.id) return;
         for (const otherSnakeCell of collision.snake) {
           if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
             collision.score += 5;
