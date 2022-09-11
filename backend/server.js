@@ -20,12 +20,12 @@ const directions = {
 }
 
 class Player {
-  constructor(client, color, snake, currDirection, name, phoneNumber) {
+  constructor(client, color, snake, currDirection, name, phoneNumber, score) {
     this.client = client
     this.currDirection = currDirection
     this.snake = snake
     this.color = color
-    this.score = 0
+    this.score = score
     this.state = 'alive'
     this.phoneNumber = phoneNumber
     this.name = name
@@ -113,7 +113,7 @@ function moveOutcome(player) {
       player.state = 'dead';
       const entry = leaderboard.find(({ playerName }) => playerName === player.name);
       // Ask Rob about this code - Dylan
-      if (entry && !entry.isFinal) {
+      if (entry && entry.isFinal) {
         entry.isFinal = true;
       }
       removePlayer(player)
@@ -195,7 +195,7 @@ function eatApple(player, tail) {
   }
 }
 
-function generatePlayer(client, color, size, name, phoneNumber)
+function generatePlayer(client, color, size, name, phoneNumber, score)
 {
   console.log(color, name, phoneNumber)
   let coords = findOpenPosition()
@@ -211,7 +211,7 @@ function generatePlayer(client, color, size, name, phoneNumber)
       snake.push(coords['x'] * width + coords['y'] - i)
   }
 
-  return new Player(client, color, snake, dir, name, phoneNumber)
+  return new Player(client, color, snake, dir, name, phoneNumber, score)
 }
 
 function sendLeaderboardText(player)
@@ -236,13 +236,13 @@ socket.on("connection", (ws) => {
     if (messageString == 'quiz_success')
     {
       let existingPlayer = players[id]
-      players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2))
+      players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score)
     }
     // Check with team on request structure
     else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right')
     {
       player = JSON.parse(data)
-      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber))
+      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0))
       fillBoard()
     }
     else
@@ -255,6 +255,8 @@ socket.on("connection", (ws) => {
   })
   
   ws.on("close", () => {
+    const entry = leaderboard.find(({ playerName }) => playerName === player.name);
+    entry.isFinal = true;
     removePlayer(players[id])
     players[id] = null
     console.log("Player " + id + " has disconnected")
