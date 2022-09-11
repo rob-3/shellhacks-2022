@@ -208,21 +208,23 @@ const socket = new WebSocket.Server({ port: 8081 });
 
 let i = 0;
 socket.on("connection", (ws) => {
+  console.log(`player ${i} has connected`);
   let id = i++;
+  let player;
   ws.on("message", (data) => {
     let messageString = data.toString();
     // Check with team on request structure
-    if (messageString == 'quiz_success') {
+    if (messageString === 'quiz_success') {
       let existingPlayer = players[id];
       players[id] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
     }
     // Check with team on request structure
-    else if (messageString != 'up' && messageString != 'down' && messageString != 'left' && messageString != 'right') {
-      const player = JSON.parse(data);
+    else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
+      player = JSON.parse(data);
       players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
       fillBoard();
     } else {
-      if (directions[data.toString()] != -directions[players[id].currDirection]) {
+      if (directions[data.toString()] !== -directions[players[id].currDirection]) {
         players[id].currDirection = data.toString();
       }
     }
@@ -246,7 +248,7 @@ setInterval(() => {
 
   players.forEach((player) => {
     if (player) {
-      player.client.send(JSON.stringify({gameState: updates, playerState: player.state, leaderboard }));
+      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard }));
     }
   });
   updates = [];
