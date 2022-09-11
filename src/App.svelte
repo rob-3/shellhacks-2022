@@ -16,6 +16,8 @@
   let paddingPerBlock: number;
   let drawablePixelsPerBlock: number;
   let scoreboard;
+  let playerScore: number;
+  let playerName: string;
 
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
@@ -44,6 +46,7 @@
     console.log(event);
     console.log("opening socket");
     ws = new WebSocket("ws://20.106.75.32:8081");
+    playerName = event.detail.playerName;
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(JSON.stringify({color: event.detail.playerColor, name: event.detail.playerName, phoneNumber: "+1" + event.detail.phoneNumber}));
@@ -52,7 +55,7 @@
     ws.addEventListener("message", (event) => {
       console.log(event.data);
       const { gameState, playerState: serverStatus, leaderboard } = JSON.parse(event.data);
-      scoreboard = leaderboard;
+      ({ scoreboard, playerScore } = leaderboard);
       for (const { x, y, color } of gameState) {
         board[x][y] = color;
       }
@@ -112,7 +115,7 @@
   <canvas class="border-4 border-gray-900" id="canvas" height="850" width="850" />
 </div>
 
-<UI scoreboard={scoreboard} />
+<UI scoreboard={scoreboard} playerName={playerName} playerScore={playerScore} />
 
 {#if localStatus === "joining"}
   <Join on:close={onLogin} />
