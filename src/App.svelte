@@ -11,9 +11,7 @@
   let ws: WebSocket;
   let clientHeight: number;
   let clientWidth: number;
-  let isDead = false;
-  let isJoining = true;
-  let isAnsweringQuestion = false;
+  let gameStatus: "joining" | "playing" | "dead" | "question" = "joining";
   let pixelsPerBlock: number;
   let paddingPerBlock: number;
   let drawablePixelsPerBlock: number;
@@ -49,7 +47,7 @@
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(JSON.stringify({color: event.detail.playerColor, name: event.detail.playerName, phoneNumber: "+1" + event.detail.phoneNumber}));
-      isJoining = false;
+      gameStatus = "playing";
     });
     ws.addEventListener("message", (event) => {
       console.log(event.data);
@@ -59,8 +57,8 @@
         board[x][y] = color;
       }
 
-      if (playerState === "dead" && !isAnsweringQuestion) {
-        isDead = true;
+      if (playerState === "dead") {
+        gameStatus = "dead";
       }
     });
   };
@@ -80,7 +78,7 @@
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
-      if (isDead) return;
+      if (gameStatus !== "playing") return;
       switch (event.key) {
         case "ArrowUp":
         case "w":
@@ -114,24 +112,19 @@
 
 <UI scoreboard={scoreboard} />
 
-{#if isDead}
+{#if gameStatus === "joining"}
+  <Join on:close={onLogin} />
+{:else if gameStatus === "dead"}
   <Death
     on:close={() => {
-      isAnsweringQuestion = true;
-      isDead = false;
+      gameStatus = "question";
     }}
   />
-{/if}
-
-{#if isAnsweringQuestion}
+{:else if gameStatus === "question"}
   <Question
     on:correct={() => {
       ws.send("quiz_success");
-      isAnsweringQuestion = false;
+      gameStatus = "playing";
     }}
   />
-{/if}
-
-{#if isJoining}
-  <Join on:close={onLogin} />
 {/if}
