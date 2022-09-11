@@ -286,10 +286,9 @@ socket.on("connection", (ws) => {
   
   ws.on("close", () => {
     const entry = leaderboard.find(({ playerName, isFinal }) => playerName === player.name && !isFinal);
-    if (!entry) {
-      throw Error(`Entry doesn't have name ${player.name} in it!`);
+    if (entry) {
+      entry.isFinal = true;
     }
-    entry.isFinal = true;
     const index = players.findIndex(p => p.client === ws);
     if (!player) {
       throw Error("Player couldn't be found when removing!");

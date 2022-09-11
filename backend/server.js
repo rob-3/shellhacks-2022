@@ -242,10 +242,9 @@ socket.on("connection", function (ws) {
             var playerName = _a.playerName, isFinal = _a.isFinal;
             return playerName === player.name && !isFinal;
         });
-        if (!entry) {
-            throw Error("Entry doesn't have name ".concat(player.name, " in it!"));
+        if (entry) {
+            entry.isFinal = true;
         }
-        entry.isFinal = true;
         var index = players.findIndex(function (p) { return p.client === ws; });
         if (!player) {
             throw Error("Player couldn't be found when removing!");
