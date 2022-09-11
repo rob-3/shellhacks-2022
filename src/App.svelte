@@ -82,8 +82,8 @@
 
   onMount(() => {
     ({ clientHeight, clientWidth } = document.documentElement);
-    clientHeight -= 40;
-    clientWidth -= 40;
+    clientHeight -= 80;
+    clientWidth -= 80;
     board = Array.from(Array(50), () => new Array(50));
     clientHeight = clientWidth = Math.min(clientWidth, clientHeight);
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
@@ -145,9 +145,3 @@
     }}
   />
 {/if}
-
-<style>
-* {
-  overflow: hidden;
-}
-</style>
