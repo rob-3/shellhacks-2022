@@ -231,7 +231,7 @@ socket.on("connection", (ws) => {
   });
   
   ws.on("close", () => {
-    const entry = leaderboard.find(({ playerName }) => playerName === player.name);
+    const entry = leaderboard.find(({ playerName, isFinal }) => playerName === player.name && !isFinal);
     entry.isFinal = true;
     removePlayer(players[id]);
     players[id] = null;
