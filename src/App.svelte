@@ -20,8 +20,8 @@
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
     ctx.fillRect(
-      paddingPerBlock + x * pixelsPerBlock,
-      paddingPerBlock + y * pixelsPerBlock,
+      paddingPerBlock / 2 + x * pixelsPerBlock,
+      paddingPerBlock / 2 + y * pixelsPerBlock,
       drawablePixelsPerBlock,
       drawablePixelsPerBlock
     );
@@ -72,9 +72,9 @@
     board = Array.from(Array(50), () => new Array(50));
     clientHeight = clientWidth = Math.min(clientWidth, clientHeight);
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
-    canvas.setAttribute("height", clientHeight.toString());
-    canvas.setAttribute("width", clientWidth.toString());
     pixelsPerBlock = Math.floor(clientHeight / 50);
+    canvas.setAttribute("height", (pixelsPerBlock*50).toString());
+    canvas.setAttribute("width", (pixelsPerBlock*50).toString());
     paddingPerBlock = Math.floor(pixelsPerBlock / 4);
     drawablePixelsPerBlock = pixelsPerBlock - paddingPerBlock;
     ctx = canvas.getContext("2d");
