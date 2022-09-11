@@ -57,7 +57,7 @@
         board[x][y] = color;
       }
 
-      if (playerState === "playing") {
+      if (playerState === "dead") {
         gameStatus = "dead";
       }
     });
