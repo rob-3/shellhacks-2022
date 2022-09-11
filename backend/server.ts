@@ -30,13 +30,13 @@ const directions = {
 
 function updateLeaderboard(player: Player) {
   let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
-  let entry = leaderboard[index];
-  if (entry) {
-    entry.score = player.score;
+  if (index !== -1) {
+    leaderboard[index].score = player.score;
   } else {
     leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+    index = leaderboard.length - 1;
   }
-  entry = entry ?? leaderboard.at(-1);
+  const entry = leaderboard[index];
   while (index !== 0 && entry.score > leaderboard[index-1].score) {
     let temp = leaderboard[index-1];
     leaderboard[index-1] = entry;

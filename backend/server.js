@@ -30,14 +30,14 @@ var directions = {
 };
 function updateLeaderboard(player) {
     var index = leaderboard.findIndex((function (winner) { return winner.playerName === player.name && !winner.isFinal; }));
-    var entry = leaderboard[index];
-    if (entry) {
-        entry.score = player.score;
+    if (index !== -1) {
+        leaderboard[index].score = player.score;
     }
     else {
         leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+        index = leaderboard.length - 1;
     }
-    entry = entry !== null && entry !== void 0 ? entry : leaderboard.at(-1);
+    var entry = leaderboard[index];
     while (index !== 0 && entry.score > leaderboard[index - 1].score) {
         var temp = leaderboard[index - 1];
         leaderboard[index - 1] = entry;
