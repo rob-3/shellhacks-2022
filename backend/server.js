@@ -95,8 +95,8 @@ function findOpenPosition() {
 function findApples() {
     for (var i_1 = 0; i_1 < gameState.board.length; i_1++) {
         for (var j = 0; j < gameState.board[i_1].length; j++) {
-            if (gameState.board[i_1][j] == 'red') {
-                updates.push(new Update(i_1, j, 'red'));
+            if (gameState.board[i_1][j] == '#edcb09') {
+                updates.push(new Update(i_1, j, '#edcb09'));
             }
         }
     }
@@ -111,8 +111,8 @@ function fillBoard() {
         }
         findApples();
         var newApple = findOpenPosition();
-        gameState.board[newApple['x']][newApple['y']] = 'red';
-        updates.push(new Update(newApple['x'], newApple['y'], 'red'));
+        gameState.board[newApple['x']][newApple['y']] = '#edcb09';
+        updates.push(new Update(newApple['x'], newApple['y'], '#edcb09'));
     });
 }
 function removePlayer(player) {
@@ -162,7 +162,7 @@ function checkForHits(player) {
     var nextCell = head + dir;
     var nextY = Math.floor(nextCell / width);
     var nextX = nextCell % width;
-    var hitNonEmptySquare = gameState.board[nextY][nextX] !== 'red' &&
+    var hitNonEmptySquare = gameState.board[nextY][nextX] !== '#edcb09' &&
         gameState.board[nextY][nextX] !== '';
     if (hitNonEmptySquare) {
         players.forEach(function (collision) {
@@ -183,15 +183,15 @@ function checkForHits(player) {
     return false;
 }
 function eatApple(player, tail) {
-    if (gameState.board[Math.floor(player.snake[0] / width)][(player.snake[0] % width)] == 'red') {
+    if (gameState.board[Math.floor(player.snake[0] / width)][(player.snake[0] % width)] == '#edcb09') {
         gameState.board[Math.floor(player.snake[0] / width)][player.snake[0] % width] = '';
         updates.push(new Update(Math.floor(player.snake[0] / width), player.snake[0] % width, ''));
         gameState.board[Math.floor(tail / width)][tail % width] = player.color;
         updates.push(new Update(Math.floor(tail / width), tail % width, player.color));
         player.snake.push(tail);
         var newApple = findOpenPosition();
-        gameState.board[newApple['x']][newApple['y']] = 'red';
-        updates.push(new Update(newApple['x'], newApple['y'], 'red'));
+        gameState.board[newApple['x']][newApple['y']] = '#edcb09';
+        updates.push(new Update(newApple['x'], newApple['y'], '#edcb09'));
         player.score++;
         updateLeaderboard(player);
     }
