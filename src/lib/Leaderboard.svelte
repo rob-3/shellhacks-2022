@@ -4,7 +4,7 @@
 
 <div
   id="leaderboard"
-  class="fixed top-1 right-1 rounded bg-gray-900 px-6 py-3 text-white"
+  class="fixed top-4 right-4 rounded bg-gray-900 px-6 py-3 text-white"
 >
   <div class="mb-1 text-xl">Leaderboard</div>
   <table class="w-[250px] table-auto">
