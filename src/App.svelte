@@ -11,7 +11,7 @@
   let ws: WebSocket;
   let clientHeight: number;
   let clientWidth: number;
-  let gameStatus: "joining" | "playing" | "dead" | "question" = "joining";
+  let localStatus: "joining" | "playing" | "dead" | "question" = "joining";
   let pixelsPerBlock: number;
   let paddingPerBlock: number;
   let drawablePixelsPerBlock: number;
@@ -47,18 +47,20 @@
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(JSON.stringify({color: event.detail.playerColor, name: event.detail.playerName, phoneNumber: "+1" + event.detail.phoneNumber}));
-      gameStatus = "playing";
+      localStatus = "playing";
     });
     ws.addEventListener("message", (event) => {
       console.log(event.data);
-      const { gameState, playerState, leaderboard } = JSON.parse(event.data);
+      const { gameState, playerState: serverStatus, leaderboard } = JSON.parse(event.data);
       scoreboard = leaderboard;
       for (const { x, y, color } of gameState) {
         board[x][y] = color;
       }
 
-      if (playerState === "dead") {
-        gameStatus = "dead";
+      if (serverStatus === "dead" && localStatus === "playing") {
+        localStatus = "dead";
+      } else if (serverStatus === "alive" && localStatus === "question") {
+        localStatus = "playing";
       }
     });
   };
@@ -78,7 +80,7 @@
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
-      if (gameStatus !== "playing") return;
+      if (localStatus !== "playing") return;
       switch (event.key) {
         case "ArrowUp":
         case "w":
@@ -112,19 +114,18 @@
 
 <UI scoreboard={scoreboard} />
 
-{#if gameStatus === "joining"}
+{#if localStatus === "joining"}
   <Join on:close={onLogin} />
-{:else if gameStatus === "dead"}
+{:else if localStatus === "dead"}
   <Death
     on:close={() => {
-      gameStatus = "question";
+      localStatus = "question";
     }}
   />
-{:else if gameStatus === "question"}
+{:else if localStatus === "question"}
   <Question
     on:correct={() => {
       ws.send("quiz_success");
-      gameStatus = "playing";
     }}
   />
 {/if}
