@@ -17,6 +17,7 @@ type LeaderboardEntry = {
   phoneNumber: string;
   isFinal: boolean;
   score: number;
+  playerId: number;
 }
 const leaderboard: LeaderboardEntry[] = [];
 
@@ -29,20 +30,21 @@ const directions = {
 
 function updateLeaderboard(player: Player) {
   let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
-  const entry = leaderboard[index];
-  if (entry && !entry.isFinal) {
-    entry.score = player.score;
-    while (index !== 0 && entry.score > leaderboard[index-1].score) {
-      let temp = leaderboard[index-1];
-      leaderboard[index-1] = entry;
-      leaderboard[index] = temp;
-      if (index === 5) {
-        sendLeaderboardText(leaderboard[5]);
-      }
-      index--;
-    }
+  if (index !== -1) {
+    leaderboard[index].score = player.score;
   } else {
-    leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+    leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+    index = leaderboard.length - 1;
+  }
+  const entry = leaderboard[index];
+  while (index !== 0 && entry.score > leaderboard[index-1].score) {
+    let temp = leaderboard[index-1];
+    leaderboard[index-1] = entry;
+    leaderboard[index] = temp;
+    if (index === 5) {
+      sendLeaderboardText(leaderboard[5]);
+    }
+    index--;
   }
 }
 
@@ -57,6 +59,7 @@ class Player {
   color: string;
   snake: number[];
   client: WebSocket;
+  id: number;
   constructor(
     client: WebSocket,
     color: string,
@@ -64,7 +67,8 @@ class Player {
     currDirection: Direction,
     name: string,
     phoneNumber: string,
-    score: number
+    score: number,
+    id: number
   ) {
     this.client = client;
     this.currDirection = currDirection;
@@ -74,6 +78,7 @@ class Player {
     this.state = 'alive';
     this.phoneNumber = phoneNumber;
     this.name = name;
+    this.id = id;
   }
 }
 
@@ -178,26 +183,35 @@ function checkForHits(player: Player) {
     (player.snake[0] % width === 0 && dir === -1) ||
     (player.snake[0] - width <= 0 && dir === -width)
   ) {
+    console.log('died by going offscreen');
+    console.log(player.snake[0] + width >= width * width && dir === width);
+    console.log(player.snake[0] % width === width - 1 && dir === 1);
+    console.log(player.snake[0] % width === 0 && dir === -1);
+    console.log(player.snake[0] - width <= 0 && dir === -width);
     return true;
   }
 
-  if ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== 'red') && 
-    (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== ''))
-    {
-      players.forEach(collision => {       
-        for (let i = 0; i < player.snake.length; i++) {
-          if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === collision?.color
-          && (player.snake[0] + dir) === collision?.snake[i])
-          {
-            collision.score += 5;
-            updateLeaderboard(collision);
-          }
+  const head = player.snake[0];
+  const nextCell = head + dir;
+  const nextY = Math.floor(nextCell / width);
+  const nextX = nextCell % width;
+  const hitNonEmptySquare = gameState.board[nextY][nextX] !== 'red' &&
+    gameState.board[nextY][nextX] !== '';
+  if (hitNonEmptySquare) {
+    players.forEach(collision => {
+      if (collision.id === player.id) return;
+      for (const otherSnakeCell of collision.snake) {
+        if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
+          collision.score += 5;
+          updateLeaderboard(collision);
+          console.log('died by collision');
+          console.log(JSON.stringify(collision));
         }
-      });
-
-      return true;
-    }
-    return false;
+      }
+    });
+    return true;
+  }
+  return false;
 }
 
 function eatApple(player: Player, tail: number) {
@@ -221,7 +235,8 @@ function generatePlayer(
   size: number,
   name: string,
   phoneNumber: string,
-  score: number
+  score: number,
+  id: number
 ) {
   const coords = findOpenPosition();
   const dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
@@ -236,7 +251,7 @@ function generatePlayer(
     }
   }
 
-  return new Player(client, color, snake, dir, name, phoneNumber, score);
+  return new Player(client, color, snake, dir, name, phoneNumber, score, id);
 }
 
 function sendLeaderboardText(player: { phoneNumber: string }) {
@@ -255,26 +270,25 @@ let i = 0;
 socket.on("connection", (ws) => {
   console.log(`player ${i} has connected`);
   let id = i++;
-  let player: Player;
   ws.on("message", (data) => {
     let messageString = data.toString();
     // Check with team on request structure
     if (messageString === 'quiz_success') {
-      const existingPlayer = players.find(p => p.client === ws);
+      const existingPlayer = players.find(p => p.id === id);
       if (!existingPlayer) {
         throw Error("couldn't match existingPlayer to a real player");
       }
-      const index = players.findIndex(p => p.client === ws);
-      players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+      const index = players.findIndex(p => p.id === id);
+      players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score, id);
       fillBoard();
     }
     // Check with team on request structure
     else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
-      player = JSON.parse(data.toString());
-      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
+      const player = JSON.parse(data.toString());
+      players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0, id));
       fillBoard();
     } else {
-      const player = players.find(p => p.client === ws);
+      const player = players.find(p => p.id === id);
       if (!player) {
         throw Error("Couldn't find player!");
       }
@@ -285,17 +299,17 @@ socket.on("connection", (ws) => {
   });
   
   ws.on("close", () => {
-    const entry = leaderboard.find(({ playerName, isFinal }) => playerName === player.name && !isFinal);
-    if (!entry) {
-      throw Error(`Entry doesn't have name ${player.name} in it!`);
+    const entry = leaderboard.find(({ playerId, isFinal }) => playerId === id && !isFinal);
+    if (entry) {
+      entry.isFinal = true;
     }
-    entry.isFinal = true;
-    const index = players.findIndex(p => p.client === ws);
-    if (!player) {
-      throw Error("Player couldn't be found when removing!");
+    const index = players.findIndex(p => p.id === id);
+    if (index === -1) {
+      console.log("Player left before joining");
+    } else {
+      removePlayer(players[index]);
+      players.splice(index, 1);
     }
-    removePlayer(player);
-    players.splice(index, 1);
     console.log("Player " + id + " has disconnected");
   });
 });

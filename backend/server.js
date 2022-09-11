@@ -30,25 +30,26 @@ var directions = {
 };
 function updateLeaderboard(player) {
     var index = leaderboard.findIndex((function (winner) { return winner.playerName === player.name && !winner.isFinal; }));
-    var entry = leaderboard[index];
-    if (entry && !entry.isFinal) {
-        entry.score = player.score;
-        while (index !== 0 && entry.score > leaderboard[index - 1].score) {
-            var temp = leaderboard[index - 1];
-            leaderboard[index - 1] = entry;
-            leaderboard[index] = temp;
-            if (index === 5) {
-                sendLeaderboardText(leaderboard[5]);
-            }
-            index--;
-        }
+    if (index !== -1) {
+        leaderboard[index].score = player.score;
     }
     else {
-        leaderboard.push({ playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+        leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+        index = leaderboard.length - 1;
+    }
+    var entry = leaderboard[index];
+    while (index !== 0 && entry.score > leaderboard[index - 1].score) {
+        var temp = leaderboard[index - 1];
+        leaderboard[index - 1] = entry;
+        leaderboard[index] = temp;
+        if (index === 5) {
+            sendLeaderboardText(leaderboard[5]);
+        }
+        index--;
     }
 }
 var Player = /** @class */ (function () {
-    function Player(client, color, snake, currDirection, name, phoneNumber, score) {
+    function Player(client, color, snake, currDirection, name, phoneNumber, score, id) {
         this.client = client;
         this.currDirection = currDirection;
         this.snake = snake;
@@ -57,6 +58,7 @@ var Player = /** @class */ (function () {
         this.state = 'alive';
         this.phoneNumber = phoneNumber;
         this.name = name;
+        this.id = id;
     }
     return Player;
 }());
@@ -147,16 +149,30 @@ function checkForHits(player) {
         (player.snake[0] % width === width - 1 && dir === 1) ||
         (player.snake[0] % width === 0 && dir === -1) ||
         (player.snake[0] - width <= 0 && dir === -width)) {
+        console.log('died by going offscreen');
+        console.log(player.snake[0] + width >= width * width && dir === width);
+        console.log(player.snake[0] % width === width - 1 && dir === 1);
+        console.log(player.snake[0] % width === 0 && dir === -1);
+        console.log(player.snake[0] - width <= 0 && dir === -width);
         return true;
     }
-    if ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== 'red') &&
-        (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== '')) {
+    var head = player.snake[0];
+    var nextCell = head + dir;
+    var nextY = Math.floor(nextCell / width);
+    var nextX = nextCell % width;
+    var hitNonEmptySquare = gameState.board[nextY][nextX] !== 'red' &&
+        gameState.board[nextY][nextX] !== '';
+    if (hitNonEmptySquare) {
         players.forEach(function (collision) {
-            for (var i_4 = 0; i_4 < player.snake.length; i_4++) {
-                if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === (collision === null || collision === void 0 ? void 0 : collision.color)
-                    && (player.snake[0] + dir) === (collision === null || collision === void 0 ? void 0 : collision.snake[i_4])) {
+            if (collision.id === player.id)
+                return;
+            for (var _i = 0, _a = collision.snake; _i < _a.length; _i++) {
+                var otherSnakeCell = _a[_i];
+                if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
                     collision.score += 5;
                     updateLeaderboard(collision);
+                    console.log('died by collision');
+                    console.log(JSON.stringify(collision));
                 }
             }
         });
@@ -178,21 +194,21 @@ function eatApple(player, tail) {
         updateLeaderboard(player);
     }
 }
-function generatePlayer(client, color, size, name, phoneNumber, score) {
+function generatePlayer(client, color, size, name, phoneNumber, score, id) {
     var coords = findOpenPosition();
     var dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
     var snake = [];
     if (dir == 'left') {
-        for (var i_5 = 0; i_5 < size; i_5++) {
-            snake.push(coords['x'] * width + coords['y'] + i_5);
+        for (var i_4 = 0; i_4 < size; i_4++) {
+            snake.push(coords['x'] * width + coords['y'] + i_4);
         }
     }
     else {
-        for (var i_6 = 0; i_6 < size; i_6++) {
-            snake.push(coords['x'] * width + coords['y'] - i_6);
+        for (var i_5 = 0; i_5 < size; i_5++) {
+            snake.push(coords['x'] * width + coords['y'] - i_5);
         }
     }
-    return new Player(client, color, snake, dir, name, phoneNumber, score);
+    return new Player(client, color, snake, dir, name, phoneNumber, score, id);
 }
 function sendLeaderboardText(player) {
     twilioClient.messages
@@ -208,50 +224,50 @@ var i = 0;
 socket.on("connection", function (ws) {
     console.log("player ".concat(i, " has connected"));
     var id = i++;
-    var player;
     ws.on("message", function (data) {
         var messageString = data.toString();
         // Check with team on request structure
         if (messageString === 'quiz_success') {
-            var existingPlayer = players.find(function (p) { return p.client === ws; });
+            var existingPlayer = players.find(function (p) { return p.id === id; });
             if (!existingPlayer) {
                 throw Error("couldn't match existingPlayer to a real player");
             }
-            var index = players.findIndex(function (p) { return p.client === ws; });
-            players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score);
+            var index = players.findIndex(function (p) { return p.id === id; });
+            players[index] = generatePlayer(ws, existingPlayer.color, Math.max(3, existingPlayer.snake.length - 2), existingPlayer.name, existingPlayer.phoneNumber, existingPlayer.score, id);
             fillBoard();
         }
         // Check with team on request structure
         else if (messageString !== 'up' && messageString !== 'down' && messageString !== 'left' && messageString !== 'right') {
-            player = JSON.parse(data.toString());
-            players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0));
+            var player = JSON.parse(data.toString());
+            players.push(generatePlayer(ws, player.color, 3, player.name, player.phoneNumber, 0, id));
             fillBoard();
         }
         else {
-            var player_1 = players.find(function (p) { return p.client === ws; });
-            if (!player_1) {
+            var player = players.find(function (p) { return p.id === id; });
+            if (!player) {
                 throw Error("Couldn't find player!");
             }
-            if (directions[messageString] !== -directions[player_1.currDirection]) {
-                player_1.currDirection = messageString;
+            if (directions[messageString] !== -directions[player.currDirection]) {
+                player.currDirection = messageString;
             }
         }
     });
     ws.on("close", function () {
         var entry = leaderboard.find(function (_a) {
-            var playerName = _a.playerName, isFinal = _a.isFinal;
-            return playerName === player.name && !isFinal;
+            var playerId = _a.playerId, isFinal = _a.isFinal;
+            return playerId === id && !isFinal;
         });
-        if (!entry) {
-            throw Error("Entry doesn't have name ".concat(player.name, " in it!"));
+        if (entry) {
+            entry.isFinal = true;
         }
-        entry.isFinal = true;
-        var index = players.findIndex(function (p) { return p.client === ws; });
-        if (!player) {
-            throw Error("Player couldn't be found when removing!");
+        var index = players.findIndex(function (p) { return p.id === id; });
+        if (index === -1) {
+            console.log("Player left before joining");
         }
-        removePlayer(player);
-        players.splice(index, 1);
+        else {
+            removePlayer(players[index]);
+            players.splice(index, 1);
+        }
         console.log("Player " + id + " has disconnected");
     });
 });

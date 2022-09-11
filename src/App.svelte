@@ -11,7 +11,7 @@
   let ws: WebSocket;
   let clientHeight: number;
   let clientWidth: number;
-  let gameStatus: "joining" | "playing" | "dead" | "question" = "joining";
+  let localStatus: "joining" | "playing" | "dead" | "question" = "joining";
   let pixelsPerBlock: number;
   let paddingPerBlock: number;
   let drawablePixelsPerBlock: number;
@@ -20,8 +20,8 @@
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
     ctx.fillRect(
-      paddingPerBlock + x * pixelsPerBlock,
-      paddingPerBlock + y * pixelsPerBlock,
+      paddingPerBlock / 2 + x * pixelsPerBlock,
+      paddingPerBlock / 2 + y * pixelsPerBlock,
       drawablePixelsPerBlock,
       drawablePixelsPerBlock
     );
@@ -47,18 +47,20 @@
     ws.addEventListener("open", () => {
       console.log("socket open");
       ws.send(JSON.stringify({color: event.detail.playerColor, name: event.detail.playerName, phoneNumber: "+1" + event.detail.phoneNumber}));
-      gameStatus = "playing";
+      localStatus = "playing";
     });
     ws.addEventListener("message", (event) => {
       console.log(event.data);
-      const { gameState, playerState, leaderboard } = JSON.parse(event.data);
+      const { gameState, playerState: serverStatus, leaderboard } = JSON.parse(event.data);
       scoreboard = leaderboard;
       for (const { x, y, color } of gameState) {
         board[x][y] = color;
       }
 
-      if (playerState === "dead") {
-        gameStatus = "dead";
+      if (serverStatus === "dead" && localStatus === "playing") {
+        localStatus = "dead";
+      } else if (serverStatus === "alive" && localStatus === "question") {
+        localStatus = "playing";
       }
     });
   };
@@ -70,15 +72,15 @@
     board = Array.from(Array(50), () => new Array(50));
     clientHeight = clientWidth = Math.min(clientWidth, clientHeight);
     const canvas = document.querySelector<HTMLCanvasElement>("#canvas");
-    canvas.setAttribute("height", clientHeight.toString());
-    canvas.setAttribute("width", clientWidth.toString());
     pixelsPerBlock = Math.floor(clientHeight / 50);
+    canvas.setAttribute("height", (pixelsPerBlock*50).toString());
+    canvas.setAttribute("width", (pixelsPerBlock*50).toString());
     paddingPerBlock = Math.floor(pixelsPerBlock / 4);
     drawablePixelsPerBlock = pixelsPerBlock - paddingPerBlock;
     ctx = canvas.getContext("2d");
     document.addEventListener("keydown", (event) => {
       console.log(event.key);
-      if (gameStatus !== "playing") return;
+      if (localStatus !== "playing") return;
       switch (event.key) {
         case "ArrowUp":
         case "w":
@@ -107,24 +109,23 @@
 </script>
 
 <div class="m-4 grid place-items-center">
-  <canvas class="border border-red-500" id="canvas" height="850" width="850" />
+  <canvas class="border-4 border-gray-900" id="canvas" height="850" width="850" />
 </div>
 
 <UI scoreboard={scoreboard} />
 
-{#if gameStatus === "joining"}
+{#if localStatus === "joining"}
   <Join on:close={onLogin} />
-{:else if gameStatus === "dead"}
+{:else if localStatus === "dead"}
   <Death
     on:close={() => {
-      gameStatus = "question";
+      localStatus = "question";
     }}
   />
-{:else if gameStatus === "question"}
+{:else if localStatus === "question"}
   <Question
     on:correct={() => {
       ws.send("quiz_success");
-      gameStatus = "playing";
     }}
   />
 {/if}
