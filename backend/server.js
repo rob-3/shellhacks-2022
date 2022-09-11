@@ -159,7 +159,6 @@ function eatApple(player, tail) {
     updates.push(new Update(newApple['x'], newApple['y'], 'red'));
     player.score++;
     let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
-    console.log("index is " + index);
     const entry = leaderboard[index];
     if (entry && !entry.isFinal) {
       entry.score = player.score;
@@ -179,7 +178,6 @@ function eatApple(player, tail) {
 }
 
 function generatePlayer(client, color, size, name, phoneNumber, score) {
-  console.log(color, name, phoneNumber);
   const coords = findOpenPosition();
   const dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
   const snake = [];
@@ -228,7 +226,6 @@ socket.on("connection", (ws) => {
         players[id].currDirection = data.toString();
       }
     }
-    console.log("Message received:" + data.toString());
   });
   
   ws.on("close", () => {
