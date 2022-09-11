@@ -15,7 +15,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each scoreboard.slice(0, 5) as { playerName, score }}
+      {#each scoreboard as { playerName, score }}
         <tr>
           <td>{playerName}</td>
           <td class="text-right">{score}</td>
