@@ -325,7 +325,7 @@ setInterval(() => {
 
   players.forEach((player) => {
     const noPhoneLeaderboard = leaderboard.slice(0, 5).map(({ phoneNumber: _, ...entry }) => entry);
-    if (!leaderboard.find(p => p.playerId === player.id && !p.isFinal)) {
+    if (!noPhoneLeaderboard.find(p => p.playerId === player.id && !p.isFinal)) {
       noPhoneLeaderboard.push({
         playerName: player.name,
         isFinal: false,
