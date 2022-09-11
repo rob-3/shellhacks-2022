@@ -150,12 +150,16 @@ function checkForHits(player) {
         (player.snake[0] - width <= 0 && dir === -width)) {
         return true;
     }
-    if ((gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== 'red') &&
-        (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] !== '')) {
+    var head = player.snake[0];
+    var nextCell = head + dir;
+    var nextY = Math.floor(nextCell / width);
+    var nextX = nextCell % width;
+    if ((gameState.board[nextY][nextX] !== 'red') &&
+        (gameState.board[nextY][nextX] !== '')) {
         players.forEach(function (collision) {
-            for (var i_4 = 0; i_4 < player.snake.length; i_4++) {
-                if (gameState.board[Math.floor((player.snake[0] + dir) / width)][(player.snake[0] + dir) % width] === (collision === null || collision === void 0 ? void 0 : collision.color)
-                    && (player.snake[0] + dir) === (collision === null || collision === void 0 ? void 0 : collision.snake[i_4])) {
+            for (var _i = 0, _a = collision.snake; _i < _a.length; _i++) {
+                var otherSnakeCell = _a[_i];
+                if (gameState.board[nextY][nextX] === collision.color && nextCell === otherSnakeCell) {
                     collision.score += 5;
                     updateLeaderboard(collision);
                 }
@@ -184,13 +188,13 @@ function generatePlayer(client, color, size, name, phoneNumber, score, id) {
     var dir = coords['y'] > Math.floor(width / 2) ? 'left' : 'right';
     var snake = [];
     if (dir == 'left') {
-        for (var i_5 = 0; i_5 < size; i_5++) {
-            snake.push(coords['x'] * width + coords['y'] + i_5);
+        for (var i_4 = 0; i_4 < size; i_4++) {
+            snake.push(coords['x'] * width + coords['y'] + i_4);
         }
     }
     else {
-        for (var i_6 = 0; i_6 < size; i_6++) {
-            snake.push(coords['x'] * width + coords['y'] - i_6);
+        for (var i_5 = 0; i_5 < size; i_5++) {
+            snake.push(coords['x'] * width + coords['y'] - i_5);
         }
     }
     return new Player(client, color, snake, dir, name, phoneNumber, score, id);
