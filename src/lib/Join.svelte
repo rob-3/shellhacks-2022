@@ -46,13 +46,13 @@
         playerName.length < 1
           ? 'border-red-500 ring-red-500'
           : 'border-gray-800'}"
-        placeholder="Enter a name"
+        placeholder="Nickname"
         type="text"
         bind:value={playerName}
       />
       <input
         class="mb-3 rounded border border-gray-800 bg-gray-800 px-4 py-2"
-        placeholder="phone number (optional)"
+        placeholder="Phone number (optional)"
         type="text"
         bind:value={phoneNumber}
       />
