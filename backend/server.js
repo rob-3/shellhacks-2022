@@ -283,7 +283,7 @@ setInterval(function () {
             return entry;
         });
         if (player) {
-            player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: noPhoneLeaderboard }));
+            player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: { scoreboard: noPhoneLeaderboard, playerScore: player.score } }));
         }
     });
     updates = [];
