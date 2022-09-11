@@ -284,8 +284,16 @@ setInterval(function () {
             var _ = _a.phoneNumber, entry = __rest(_a, ["phoneNumber"]);
             return entry;
         });
+        if (!leaderboard.find(function (p) { return p.playerId === player.id && !p.isFinal; })) {
+            noPhoneLeaderboard.push({
+                playerName: player.name,
+                isFinal: false,
+                score: player.score,
+                playerId: player.id
+            });
+        }
         if (player) {
-            player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: { scoreboard: noPhoneLeaderboard, playerScore: player.score } }));
+            player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: { scoreboard: noPhoneLeaderboard, playerScore: player.score, playerLength: player.snake.length } }));
         }
     });
     updates = [];

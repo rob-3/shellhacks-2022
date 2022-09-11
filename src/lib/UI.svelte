@@ -3,10 +3,10 @@
 
   import ScoreBoard from "./Leaderboard.svelte";
   export let scoreboard;
-  export let playerScore: number;
   export let playerName: string;
+  export let playerLength: number;
 </script>
 
 <ScoreBoard scoreboard={scoreboard}/>
-<Counter playerScore={playerScore} playerName={playerName}/>
+<Counter playerName={playerName} playerLength={playerLength}/>
 <slot />

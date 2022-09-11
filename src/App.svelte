@@ -18,6 +18,7 @@
   let scoreboard;
   let playerScore: number;
   let playerName: string;
+  let playerLength: number;
 
   const drawAt = (color: string, x: number, y: number): void => {
     ctx.fillStyle = color;
@@ -55,7 +56,7 @@
     ws.addEventListener("message", (event) => {
       console.log(event.data);
       const { gameState, playerState: serverStatus, leaderboard } = JSON.parse(event.data);
-      ({ scoreboard, playerScore } = leaderboard);
+      ({ scoreboard, playerScore, playerLength } = leaderboard);
       for (const { x, y, color } of gameState) {
         board[x][y] = color;
       }
@@ -115,7 +116,7 @@
   <canvas class="border-4 border-gray-900" id="canvas" height="850" width="850" />
 </div>
 
-<UI scoreboard={scoreboard} playerName={playerName} playerScore={playerScore} />
+<UI scoreboard={scoreboard} playerName={playerName} playerLength={playerLength}/>
 
 {#if localStatus === "joining"}
   <Join on:close={onLogin} />
