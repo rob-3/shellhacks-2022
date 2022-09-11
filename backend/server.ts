@@ -30,20 +30,21 @@ const directions = {
 
 function updateLeaderboard(player: Player) {
   let index = leaderboard.findIndex((winner => {return winner.playerName === player.name && !winner.isFinal}));
-  const entry = leaderboard[index];
-  if (entry && !entry.isFinal) {
+  let entry = leaderboard[index];
+  if (entry) {
     entry.score = player.score;
-    while (index !== 0 && entry.score > leaderboard[index-1].score) {
-      let temp = leaderboard[index-1];
-      leaderboard[index-1] = entry;
-      leaderboard[index] = temp;
-      if (index === 5) {
-        sendLeaderboardText(leaderboard[5]);
-      }
-      index--;
-    }
   } else {
     leaderboard.push({ playerId: player.id, playerName: player.name, score: player.score, isFinal: false, phoneNumber: player.phoneNumber });
+  }
+  entry = entry ?? leaderboard.at(-1);
+  while (index !== 0 && entry.score > leaderboard[index-1].score) {
+    let temp = leaderboard[index-1];
+    leaderboard[index-1] = entry;
+    leaderboard[index] = temp;
+    if (index === 5) {
+      sendLeaderboardText(leaderboard[5]);
+    }
+    index--;
   }
 }
 
