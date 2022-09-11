@@ -36,7 +36,9 @@
 
 <div transition:fade class="fixed inset-0 bg-gray-900 text-white">
   <div class="flex h-full flex-col items-center justify-center">
-    <div class="mb-6 text-center text-4xl">FinanceViper</div>
+    <div class="mb-6 text-center text-4xl">
+      Finance<span class="text-5xl text-green-400">Viper</span>
+    </div>
     <form on:submit|preventDefault={handleJoin} class="mb-4 flex flex-col">
       <input
         bind:this={input}
@@ -56,7 +58,7 @@
         type="text"
         bind:value={phoneNumber}
       />
-      <button class=" rounded bg-green-500 px-4 py-2">Play</button>
+      <button class=" rounded bg-green-400 px-4 py-2">Play</button>
     </form>
     <div>
       <label class="mb-1 block" for="color">Choose your color</label>
