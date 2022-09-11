@@ -253,7 +253,7 @@ setInterval(() => {
 
   players.forEach((player) => {
     if (player) {
-      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard }));
+      player.client.send(JSON.stringify({ gameState: updates, playerState: player.state, leaderboard: leaderboard.slice(0, 5) }));
     }
   });
   updates = [];
